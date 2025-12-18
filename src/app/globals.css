@@ -24,3 +24,61 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* Add this to your globals.css for better math spacing */
+
+/* Block math equations - more spacing */
+.katex-display {
+  margin: 2rem 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Inline math */
+.katex {
+  font-size: 1.1em !important;
+}
+
+/* Better paragraph spacing after math */
+.prose p + p {
+  margin-top: 1.5rem;
+}
+
+/* Heading spacing */
+.prose h2 {
+  margin-top: 3rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.prose h3 {
+  margin-top: 2.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.prose h4 {
+  margin-top: 2rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Better line height for readability */
+.prose {
+  line-height: 1.8;
+}
+
+/* Add space between list items */
+.prose li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Blockquote styling */
+.prose blockquote {
+  margin: 2rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+/* Horizontal rule spacing */
+.prose hr {
+  margin: 3rem 0;
+}
