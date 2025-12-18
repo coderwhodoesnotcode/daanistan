@@ -7,7 +7,7 @@ export default function ChapterPage() {
   const { subject, chapter } = useParams();
 
   // Extract chapter number from the chapter param (e.g., "chapter-1" -> "1")
-  const chapterNumber = chapter.toString().replace("chapter-", "");
+const chapterNumber = chapter?.toString().replace("chapter-", "") || "";
 
   // Define the number of exercises per chapter
   const exerciseCounts: { [key: string]: number } = {
