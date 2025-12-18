@@ -5,13 +5,29 @@ import { BookOpen, ArrowLeft, FileText } from "lucide-react";
 
 export default function SubjectPage() {
   const params = useParams();
-  const subject = params.subject;
+  const subject = params.subject as string;
+  
+  // Add safety check
+  if (!subject) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            Invalid Subject
+          </h1>
+          <Link href="/kpk-boards/class-11" className="text-blue-600 hover:underline">
+            Go back to Class 11
+          </Link>
+        </div>
+      </div>
+    );
+  }
   
   const subjectName = subject.charAt(0).toUpperCase() + subject.slice(1);
   const chapters = Array.from({ length: 12 }, (_, i) => i + 1);
 
   // Subject-specific colors
-  const subjectColors = {
+  const subjectColors: { [key: string]: any } = {
     maths: { gradient: "from-blue-500 to-blue-600", bg: "bg-blue-500", hover: "hover:bg-blue-600", shadow: "hover:shadow-blue-500/50", text: "text-blue-600" },
     physics: { gradient: "from-purple-500 to-purple-600", bg: "bg-purple-500", hover: "hover:bg-purple-600", shadow: "hover:shadow-purple-500/50", text: "text-purple-600" },
     chemistry: { gradient: "from-green-500 to-green-600", bg: "bg-green-500", hover: "hover:bg-green-600", shadow: "hover:shadow-green-500/50", text: "text-green-600" },
