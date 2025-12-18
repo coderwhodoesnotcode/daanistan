@@ -4,10 +4,28 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 export default function ChapterPage() {
-  const { subject, chapter } = useParams();
+  const params = useParams();
+  const subject = params.subject as string;
+  const chapter = params.chapter as string;
+
+  // Add safety checks
+  if (!subject || !chapter) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            Invalid Page
+          </h1>
+          <Link href="/kpk-boards/class-11" className="text-blue-600 hover:underline">
+            Go back to Class 11
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Extract chapter number from the chapter param (e.g., "chapter-1" -> "1")
-const chapterNumber = chapter?.toString().replace("chapter-", "") || "";
+  const chapterNumber = chapter.toString().replace("chapter-", "");
 
   // Define the number of exercises per chapter
   const exerciseCounts: { [key: string]: number } = {
@@ -65,12 +83,12 @@ const chapterNumber = chapter?.toString().replace("chapter-", "") || "";
                 href={`/kpk-boards/class-11/${subject}`}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors capitalize"
               >
-                {subject.toString()}
+                {subject}
               </Link>
             </li>
             <li className="text-gray-400">/</li>
             <li className="text-blue-600 dark:text-blue-400 font-medium capitalize">
-              {chapter.toString().replace("-", " ")}
+              {chapter.replace("-", " ")}
             </li>
           </ol>
         </nav>
@@ -78,7 +96,7 @@ const chapterNumber = chapter?.toString().replace("chapter-", "") || "";
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight capitalize">
-            {subject.toString()} - {chapter.toString().replace("-", " ")}
+            {subject} - {chapter.replace("-", " ")}
           </h1>
           
           <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mb-6">
@@ -86,10 +104,10 @@ const chapterNumber = chapter?.toString().replace("chapter-", "") || "";
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
-              <span className="capitalize">{subject.toString()}</span>
+              <span className="capitalize">{subject}</span>
             </span>
             <span>•</span>
-            <span className="capitalize">{chapter.toString().replace("-", " ")}</span>
+            <span className="capitalize">{chapter.replace("-", " ")}</span>
             <span>•</span>
             <span>{numExercises} Exercises</span>
           </div>
@@ -160,7 +178,7 @@ const chapterNumber = chapter?.toString().replace("chapter-", "") || "";
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            <span className="font-medium capitalize">Back to {subject.toString()}</span>
+            <span className="font-medium capitalize">Back to {subject}</span>
           </Link>
         </div>
 
