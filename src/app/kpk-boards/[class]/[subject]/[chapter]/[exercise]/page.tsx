@@ -17,46 +17,67 @@ interface Note {
 export default function ExercisePage({ 
   params 
 }: { 
-  params: Promise<{ subject: string; chapter: string; exercise: string }>
+  params: Promise<{ class: string; subject: string; chapter: string; exercise: string }>
 }) {
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [urlParams, setUrlParams] = useState<{ subject: string; chapter: string; exercise: string } | null>(null);
+  const [urlParams, setUrlParams] = useState<{ class: string; subject: string; chapter: string; exercise: string } | null>(null);
 
   useEffect(() => {
     async function loadData() {
       const resolvedParams = await params;
       setUrlParams(resolvedParams);
       
-      const { subject, chapter, exercise } = resolvedParams;
+      const { class: classNum, subject, chapter, exercise } = resolvedParams;
+      
+      // Extract class number (e.g., "class-11" -> "11")
+      const classNumber = classNum.replace("class-", "");
+      
+      // Keep chapter format as-is (e.g., "chapter-1")
+      // Database stores it as "chapter-1", not just "1"
       
       // Transform subject to match database format
-      const dbSubject = `${subject}-kpk-11`;
+      const dbSubject = `${subject}-kpk-${classNumber}`;
       
       const supabase = createClient();
 
-      const { data, error: fetchError } = await supabase
+      console.log('Searching for:', {
+        subject: dbSubject.trim(),
+        chapter: chapter.trim(),  // Use full "chapter-1" format
+        exercise: exercise.trim()
+      });
+
+      // First, let's try to find all matching records to debug
+      const { data: allData, error: debugError } = await supabase
         .from("notes")
         .select("*")
         .eq("subject", dbSubject.trim())
-        .eq("chapter", chapter.trim())
-        .eq("exercise", exercise.trim())
-        .single();
+        .eq("chapter", chapter.trim())  // Use full "chapter-1" format
+        .eq("exercise", exercise.trim());
 
-      if (fetchError) {
-        setError(fetchError.message);
+      console.log('Found records:', allData);
+      console.log('Debug error:', debugError);
+
+      if (debugError) {
+        setError(debugError.message);
         setLoading(false);
         return;
       }
 
-      if (!data) {
-        setError("No notes found");
+      if (!allData || allData.length === 0) {
+        setError("No notes found for this exercise");
         setLoading(false);
         return;
       }
 
-      setNote(data);
+      if (allData.length > 1) {
+        setError(`Found ${allData.length} records. Please contact support to resolve duplicates.`);
+        setLoading(false);
+        return;
+      }
+
+      setNote(allData[0]);
       setLoading(false);
     }
 
@@ -94,23 +115,41 @@ export default function ExercisePage({
                     <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-2">
                       Searching for:
                     </p>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                      <span className="px-3 py-1 bg-white dark:bg-gray-700 rounded-full">
-                        {urlParams.subject}-kpk-11
-                      </span>
-                      <span>→</span>
-                      <span className="px-3 py-1 bg-white dark:bg-gray-700 rounded-full">
-                        {urlParams.chapter}
-                      </span>
-                      <span>→</span>
-                      <span className="px-3 py-1 bg-white dark:bg-gray-700 rounded-full">
-                        {urlParams.exercise}
-                      </span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">Subject:</span>
+                        <span className="px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400">
+                          {urlParams.subject}-kpk-{urlParams.class.replace("class-", "")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">Chapter:</span>
+                        <span className="px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400">
+                          {urlParams.chapter}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">Exercise:</span>
+                        <span className="px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400">
+                          {urlParams.exercise}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
+                <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-2">
+                    💡 Common Issues:
+                  </p>
+                  <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc list-inside space-y-1">
+                    <li>Check if the chapter is stored as "1" or "chapter-1" in database</li>
+                    <li>Verify the exercise format matches (e.g., "1.1" vs "Exercise 1.1")</li>
+                    <li>Ensure there are no extra spaces in the database values</li>
+                    <li>Check the console for debug information</li>
+                  </ul>
+                </div>
                 <p className="mt-4 text-gray-600 dark:text-gray-400">
-                  Please check the URL or contact support if this problem persists.
+                  Please check the browser console for more details or contact support if this problem persists.
                 </p>
               </div>
             </div>
@@ -141,12 +180,12 @@ export default function ExercisePage({
             <li className="text-gray-400">/</li>
             <li>
               <span className="text-gray-600 dark:text-gray-300 font-medium">
-                {note.chapter}
+                Chapter {note.chapter}
               </span>
             </li>
             <li className="text-gray-400">/</li>
             <li className="text-blue-600 dark:text-blue-400 font-medium">
-              {note.exercise}
+              Exercise {note.exercise}
             </li>
           </ol>
         </nav>
@@ -164,7 +203,7 @@ export default function ExercisePage({
               <span className="capitalize">{note.subject}</span>
             </span>
             <span>•</span>
-            <span>{note.chapter}</span>
+            <span>Chapter {note.chapter}</span>
             <span>•</span>
             <span>Exercise {note.exercise}</span>
           </div>
@@ -181,7 +220,7 @@ export default function ExercisePage({
         {note.pdf_url && (
           <div className="bg-white dark:bg-gray-900 rounded-lg p-6 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">PDF Document</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">PDF Document</h2>
               <button
                 onClick={() => {
                   const pageUrl = window.location.href;
@@ -222,7 +261,7 @@ export default function ExercisePage({
 
         {/* Footer Info */}
         <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>KPK Board - Class 11 - New Syllabus</p>
+          <p>KPK Board - New Syllabus</p>
         </div>
       </div>
     </div>
