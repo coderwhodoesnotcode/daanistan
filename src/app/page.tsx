@@ -1,10 +1,20 @@
+import Head from "next/head";
 import Image from "next/image";
 import { BookOpen, FileText, Award, Briefcase, Facebook, Twitter, Instagram, Youtube, Linkedin } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 dark:from-gray-900 dark:via-black dark:to-gray-900 font-sans">
-      {/* Hero Section */}
+      
+      {/* Head section with Google verification */}
+      <Head>
+        <meta
+          name="google-site-verification"
+          content="hw_SUpIYqf9iSRoPQHRsrDy8jOtlMWar1OSxiItQK3o"
+        />
+        <title>Daanistan - Your Learning Companion</title>
+      </Head>
+
       <header className="relative flex flex-col items-center justify-center text-center py-24 px-4 overflow-hidden">
         {/* Decorative Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
