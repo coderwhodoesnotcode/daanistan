@@ -1,19 +1,19 @@
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import Header from '../components/Header'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  // Primary SEO Meta Tags
   title: 'Daanistan - Free Notes & Past Papers Class 9, 10, 11, 12 | FBISE, KPK & Punjab Board',
-  description: 'Download free educational notes, past papers, solved exercises & study materials for Class 9th, 10th, 11th & 12th. Complete resources for FBISE, KPK Board, Punjab Board students. Get exam preparation materials, chapter-wise notes, and previous year papers.',
-  
-  // Keywords for Search Engines
+  description:
+    'Download free educational notes, past papers, solved exercises & study materials for Class 9th, 10th, 11th & 12th. Complete resources for FBISE, KPK Board, Punjab Board students.',
+
   keywords: [
     'Daanistan',
     'free notes class 9',
-    'free notes class 10', 
+    'free notes class 10',
     'free notes class 11',
     'free notes class 12',
     'FBISE notes',
@@ -36,25 +36,23 @@ export const metadata = {
     'Lahore board notes',
     'free study resources Pakistan'
   ].join(', '),
-  
-  // Author and Publisher
+
   authors: [{ name: 'Daanistan Education' }],
   creator: 'Daanistan',
   publisher: 'Daanistan',
-  
-  // Verification
+
   verification: {
     google: 'hw_SUpIYqf9iSRoPQHRsrDy8jOtlMWar1OSxiItQK3o',
   },
-  
-  // Open Graph Meta Tags (for Facebook, LinkedIn, etc.)
+
   openGraph: {
     type: 'website',
     locale: 'en_PK',
     url: 'https://daanistan.com',
     siteName: 'Daanistan',
     title: 'Daanistan - Free Educational Notes & Past Papers for All Pakistan Boards',
-    description: 'Download free notes and past papers for Class 9-12. Complete study materials for FBISE, KPK Board & Punjab Board students.',
+    description:
+      'Download free notes and past papers for Class 9-12. Complete study materials for FBISE, KPK Board & Punjab Board students.',
     images: [
       {
         url: 'https://daanistan.com/og-image.jpg',
@@ -64,18 +62,17 @@ export const metadata = {
       }
     ],
   },
-  
-  // Twitter Card Meta Tags
+
   twitter: {
     card: 'summary_large_image',
     site: '@daanistan',
     creator: '@daanistan',
     title: 'Daanistan - Free Notes & Past Papers for Pakistani Students',
-    description: 'Complete study materials for Class 9, 10, 11, 12 | FBISE, KPK & Punjab Boards',
+    description:
+      'Complete study materials for Class 9, 10, 11, 12 | FBISE, KPK & Punjab Boards',
     images: ['https://daanistan.com/twitter-image.jpg'],
   },
-  
-  // Robots Meta Tag
+
   robots: {
     index: true,
     follow: true,
@@ -87,43 +84,35 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
-  
-  // Canonical URL
+
   alternates: {
     canonical: 'https://daanistan.com',
   },
-  
-  // Additional Meta Tags
+
   category: 'Education',
   classification: 'Educational Resources',
-  
-  // App-specific metadata
+
   applicationName: 'Daanistan',
-  
-  // Viewport
+
   viewport: {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 5,
   },
-  
-  // Theme Color
+
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#fbbf24' },
     { media: '(prefers-color-scheme: dark)', color: '#1f2937' }
   ],
-  
-  // Manifest
+
   manifest: '/manifest.json',
-  
-  // Icons
+
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   },
-  
-  // Other metadata
+
   other: {
     'geo.region': 'PK',
     'geo.placename': 'Pakistan',
@@ -135,7 +124,6 @@ export const metadata = {
   }
 }
 
-// JSON-LD Structured Data for Rich Snippets
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'EducationalOrganization',
@@ -170,10 +158,27 @@ export default function RootLayout({
   return (
     <html lang="en-PK">
       <body className={inter.className}>
+
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZCTR16Q5V6"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-ZCTR16Q5V6');
+          `}
+        </Script>
+
+        {/* JSON-LD */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+
         <Header />
         {children}
       </body>
