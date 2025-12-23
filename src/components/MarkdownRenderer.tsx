@@ -1,7 +1,10 @@
+'use client'
+
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
+import 'katex/dist/katex.min.css';
 
 type Props = {
   content: string;
@@ -67,16 +70,11 @@ export default function MarkdownRenderer({ content }: Props) {
       dark:prose-td:border-gray-700
     ">
       <ReactMarkdown
-        remarkPlugins={[remarkMath, remarkGfm]}
+        remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
-          // Add extra spacing after paragraphs containing math
           p: ({ children }) => <p className="mb-6">{children}</p>,
-          
-          // Better list item spacing
           li: ({ children }) => <li className="mb-2">{children}</li>,
-          
-          // Add spacing around headings
           h2: ({ children }) => <h2 className="mt-12 mb-6">{children}</h2>,
           h3: ({ children }) => <h3 className="mt-8 mb-4">{children}</h3>,
           h4: ({ children }) => <h4 className="mt-6 mb-3">{children}</h4>,
