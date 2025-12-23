@@ -251,7 +251,7 @@ export default function QuizInterface({ mcqs, category, difficulty }: QuizInterf
       </div>
 
       {/* Navigation */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="flex justify-between items-center gap-4 mb-6">
         <button
           onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
           disabled={currentQuestion === 0}
@@ -259,24 +259,6 @@ export default function QuizInterface({ mcqs, category, difficulty }: QuizInterf
         >
           Previous
         </button>
-
-        <div className="flex gap-2 flex-wrap justify-center">
-          {mcqs.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentQuestion(index)}
-              className={`w-10 h-10 rounded-lg font-semibold transition-all ${
-                selectedAnswers[index]
-                  ? 'bg-green-500 text-white'
-                  : currentQuestion === index
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
 
         {currentQuestion === mcqs.length - 1 ? (
           <button
@@ -293,6 +275,40 @@ export default function QuizInterface({ mcqs, category, difficulty }: QuizInterf
             Next
           </button>
         )}
+      </div>
+
+      {/* MCQ Status Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Question Overview</h3>
+          <div className="flex gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-green-500"></div>
+              <span className="text-gray-700 dark:text-gray-300">Attempted ({Object.keys(selectedAnswers).length})</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-gray-300 dark:bg-gray-600"></div>
+              <span className="text-gray-700 dark:text-gray-300">Unattempted ({mcqs.length - Object.keys(selectedAnswers).length})</span>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-10 gap-2">
+          {mcqs.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentQuestion(index)}
+              className={`aspect-square rounded-lg font-semibold transition-all hover:scale-110 ${
+                selectedAnswers[index]
+                  ? 'bg-green-500 text-white'
+                  : currentQuestion === index
+                  ? 'bg-blue-500 text-white ring-2 ring-blue-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
