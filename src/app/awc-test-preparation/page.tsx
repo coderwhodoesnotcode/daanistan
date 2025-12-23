@@ -106,7 +106,7 @@ export default function AWCTestPreparation() {
 
               {/* Physics Test */}
               <Link
-                href="/awc-test-preparation/am-physics"
+                href="/awc-test-preparation/assistant-manager-physics"
                 className="group relative bg-gradient-to-br from-purple-50 to-white dark:from-gray-800 dark:to-gray-700 p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-purple-200 dark:border-purple-600 overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500 rounded-full opacity-10 -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
@@ -115,7 +115,7 @@ export default function AWCTestPreparation() {
                     <Atom className="w-12 h-12 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                    AM Physics
+                    Assistant Manager Physics
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
                     Test your knowledge in mechanics, thermodynamics, electromagnetism, and modern physics.
@@ -128,7 +128,7 @@ export default function AWCTestPreparation() {
 
               {/* Chemistry Test */}
               <Link
-                href="/awc-test-preparation/am-chemistry"
+                href="/awc-test-preparation/assistant-manager-chemistry"
                 className="group relative bg-gradient-to-br from-green-50 to-white dark:from-gray-800 dark:to-gray-700 p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-green-200 dark:border-green-600 overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-full opacity-10 -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
@@ -137,7 +137,7 @@ export default function AWCTestPreparation() {
                     <FlaskConical className="w-12 h-12 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                    AM Chemistry
+                    Assistant Manager Chemistry
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
                     Practice questions on organic, inorganic, physical chemistry, and chemical reactions.
