@@ -25,7 +25,59 @@ export default function SubjectPage() {
   
   const classNumber = classNum.replace("class-", "");
   const subjectName = subject.charAt(0).toUpperCase() + subject.slice(1);
-  const chapters = Array.from({ length: 12 }, (_, i) => i + 1);
+
+  // ============================================================
+  // CHAPTER COUNT CONFIGURATION
+  // Define how many chapters each subject has per class
+  // ============================================================
+  
+  // Mathematics chapter counts
+  const mathsChapterCounts: { [key: string]: number } = {
+    "9": 15,
+    "10": 14,
+    "11": 12,
+    "12": 12
+  };
+
+  // Physics chapter counts
+  const physicsChapterCounts: { [key: string]: number } = {
+    "9": 8,
+    "10": 10,
+    "11": 10,  // Changed from 12 to 10
+    "12": 10
+  };
+
+  // Chemistry chapter counts
+  const chemistryChapterCounts: { [key: string]: number } = {
+    "9": 8,
+    "10": 9,
+    "11": 10,
+    "12": 9
+  };
+
+  // Biology chapter counts
+  const biologyChapterCounts: { [key: string]: number } = {
+    "9": 9,
+    "10": 8,
+    "11": 11,
+    "12": 10
+  };
+
+  // Get chapter count based on subject and class
+  let chapterCount = 12; // default
+  
+  if (subject === "maths") {
+    chapterCount = mathsChapterCounts[classNumber] || 12;
+  } else if (subject === "physics") {
+    chapterCount = physicsChapterCounts[classNumber] || 10;
+  } else if (subject === "chemistry") {
+    chapterCount = chemistryChapterCounts[classNumber] || 10;
+  } else if (subject === "biology") {
+    chapterCount = biologyChapterCounts[classNumber] || 10;
+  }
+
+  // Generate chapters array based on the count
+  const chapters = Array.from({ length: chapterCount }, (_, i) => i + 1);
 
   const subjectColors: { [key: string]: any } = {
     maths: { gradient: "from-blue-500 to-blue-600", bg: "bg-blue-500", hover: "hover:bg-blue-600", shadow: "hover:shadow-blue-500/50", text: "text-blue-600" },

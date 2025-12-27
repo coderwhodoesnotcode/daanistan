@@ -13,9 +13,9 @@ export default function Header() {
   ];
 
   const testPreparation = [
-    { name: 'ISSB', slug: 'issb' },
-    { name: 'ETEA', slug: 'etea' },
-    { name: 'MDCat', slug: 'mdcat' },
+    { name: 'Software', slug: 'assistant-manager-software' },
+    { name: 'Chemistry', slug: 'assistant-manager-chemistry' },
+    { name: 'Physics', slug: 'assistant-manager-physics' },
   ];
 
   return (
@@ -57,7 +57,7 @@ export default function Header() {
                 {boards.map((board) => (
                   <Link
                     key={board.slug}
-                    href={`/${board.slug}/class-11`}
+                    href={`/${board.slug}/`}
                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors"
                   >
                     {board.name}
@@ -80,7 +80,7 @@ export default function Header() {
                 {testPreparation.map((test) => (
                   <Link
                     key={test.slug}
-                    href={`/test-preparation/${test.slug}`}
+                    href={`/awc-test-preparation/${test.slug}`}
                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors"
                   >
                     {test.name}
@@ -137,7 +137,7 @@ export default function Header() {
                   {boards.map((board) => (
                     <Link
                       key={board.slug}
-                      href={`/${board.slug}/class-11`}
+                      href={`/${board.slug}/`}
                       className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -150,13 +150,13 @@ export default function Header() {
               {/* Mobile Test Preparation */}
               <div className="px-4 py-2">
                 <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                  Test Preparation
+                  AWC Test Preparation
                 </p>
                 <div className="space-y-1 ml-4">
                   {testPreparation.map((test) => (
                     <Link
                       key={test.slug}
-                      href={`/test-preparation/${test.slug}`}
+                      href={`/awc-test-preparation/${test.slug}`}
                       className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
                       onClick={() => setMobileMenuOpen(false)}
                     >

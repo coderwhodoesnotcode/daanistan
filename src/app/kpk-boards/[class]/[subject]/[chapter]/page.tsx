@@ -27,10 +27,15 @@ export default function ChapterPage() {
   const classNumber = classNum.replace("class-", "");
   const chapterNumber = chapter.replace("chapter-", "");
 
-  // Check if subject is maths
+  // Check subject type
   const isMaths = subject === "maths";
+  const isPhysics = subject === "physics";
+  const isChemistry = subject === "chemistry";
+  const isBiology = subject === "biology";
 
-  // Exercise counts per class and chapter for Mathematics
+  // ============================================================
+  // MATHEMATICS EXERCISE CONFIGURATION
+  // ============================================================
   const mathsExerciseData: { [key: string]: { [key: string]: number } } = {
     "9": {
       "1": 3, "2": 4, "3": 5, "4": 4, "5": 3, "6": 4, "7": 3, "8": 4,
@@ -50,6 +55,169 @@ export default function ChapterPage() {
     }
   };
 
+  // ============================================================
+  // SCIENCE SUBJECTS SECTION AVAILABILITY
+  // ============================================================
+  
+  // Physics section availability
+  const physicsSectionsData: { [key: string]: { [key: string]: { slo: boolean; mcqs: boolean; numericals: boolean; notes: boolean } } } = {
+    "9": {
+      "1": { slo: true, mcqs: true, numericals: true, notes: true },
+      "2": { slo: true, mcqs: true, numericals: true, notes: true },
+      "3": { slo: true, mcqs: true, numericals: false, notes: true },
+      "4": { slo: true, mcqs: true, numericals: true, notes: true },
+      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "6": { slo: true, mcqs: true, numericals: true, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
+      "8": { slo: true, mcqs: true, numericals: true, notes: true }
+    },
+    "10": {
+      "1": { slo: true, mcqs: true, numericals: true, notes: true },
+      "2": { slo: true, mcqs: true, numericals: true, notes: true },
+      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "4": { slo: true, mcqs: true, numericals: true, notes: true },
+      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "6": { slo: true, mcqs: true, numericals: true, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true },
+      "9": { slo: true, mcqs: true, numericals: true, notes: true },
+      "10": { slo: true, mcqs: true, numericals: true, notes: true }
+    },
+    "11": {
+      "1": { slo: true, mcqs: true, numericals: true, notes: true },
+      "2": { slo: true, mcqs: true, numericals: true, notes: true },
+      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "4": { slo: true, mcqs: true, numericals: true, notes: true },
+      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
+      "7": { slo: true, mcqs: true, numericals: true, notes: true },
+      "8": { slo: true, mcqs: true, numericals: true, notes: true },
+      "9": { slo: true, mcqs: true, numericals: true, notes: true },
+      "10": { slo: true, mcqs: true, numericals: false, notes: true }
+    },
+    "12": {
+      "1": { slo: true, mcqs: true, numericals: true, notes: true },
+      "2": { slo: true, mcqs: true, numericals: true, notes: true },
+      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
+      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "6": { slo: true, mcqs: true, numericals: true, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
+      "8": { slo: true, mcqs: true, numericals: true, notes: true },
+      "9": { slo: true, mcqs: true, numericals: false, notes: true },
+      "10": { slo: true, mcqs: true, numericals: true, notes: true }
+    }
+  };
+
+  // Chemistry section availability
+  const chemistrySectionsData: { [key: string]: { [key: string]: { slo: boolean; mcqs: boolean; numericals: boolean; notes: boolean } } } = {
+    "9": {
+      "1": { slo: true, mcqs: true, numericals: false, notes: true },
+      "2": { slo: true, mcqs: true, numericals: true, notes: true },
+      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
+      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
+      "7": { slo: true, mcqs: true, numericals: true, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true }
+    },
+    "10": {
+      "1": { slo: true, mcqs: true, numericals: false, notes: true },
+      "2": { slo: true, mcqs: true, numericals: true, notes: true },
+      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
+      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
+      "7": { slo: true, mcqs: true, numericals: true, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true },
+      "9": { slo: true, mcqs: true, numericals: true, notes: true }
+    },
+    "11": {
+      "1": { slo: true, mcqs: true, numericals: false, notes: true },
+      "2": { slo: true, mcqs: true, numericals: true, notes: true },
+      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "4": { slo: true, mcqs: true, numericals: true, notes: true },
+      "5": { slo: true, mcqs: true, numericals: false, notes: true },
+      "6": { slo: true, mcqs: true, numericals: true, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
+      "8": { slo: true, mcqs: true, numericals: true, notes: true },
+      "9": { slo: true, mcqs: true, numericals: false, notes: true },
+      "10": { slo: true, mcqs: true, numericals: true, notes: true }
+    },
+    "12": {
+      "1": { slo: true, mcqs: true, numericals: false, notes: true },
+      "2": { slo: true, mcqs: true, numericals: true, notes: true },
+      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
+      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
+      "7": { slo: true, mcqs: true, numericals: true, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true },
+      "9": { slo: true, mcqs: true, numericals: true, notes: true }
+    }
+  };
+
+  // Biology section availability
+  const biologySectionsData: { [key: string]: { [key: string]: { slo: boolean; mcqs: boolean; numericals: boolean; notes: boolean } } } = {
+    "9": {
+      "1": { slo: true, mcqs: true, numericals: false, notes: true },
+      "2": { slo: true, mcqs: true, numericals: false, notes: true },
+      "3": { slo: true, mcqs: true, numericals: false, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
+      "5": { slo: true, mcqs: true, numericals: false, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true },
+      "9": { slo: true, mcqs: true, numericals: false, notes: true }
+    },
+    "10": {
+      "1": { slo: true, mcqs: true, numericals: false, notes: true },
+      "2": { slo: true, mcqs: true, numericals: false, notes: true },
+      "3": { slo: true, mcqs: true, numericals: false, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
+      "5": { slo: true, mcqs: true, numericals: false, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true }
+    },
+    "11": {
+      "1": { slo: true, mcqs: true, numericals: false, notes: true },
+      "2": { slo: true, mcqs: true, numericals: false, notes: true },
+      "3": { slo: true, mcqs: true, numericals: false, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
+      "5": { slo: true, mcqs: true, numericals: false, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true },
+      "9": { slo: true, mcqs: true, numericals: false, notes: true },
+      "10": { slo: true, mcqs: true, numericals: false, notes: true },
+      "11": { slo: true, mcqs: true, numericals: false, notes: true }
+    },
+    "12": {
+      "1": { slo: true, mcqs: true, numericals: false, notes: true },
+      "2": { slo: true, mcqs: true, numericals: false, notes: true },
+      "3": { slo: true, mcqs: true, numericals: false, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
+      "5": { slo: true, mcqs: true, numericals: false, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true },
+      "9": { slo: true, mcqs: true, numericals: false, notes: true },
+      "10": { slo: true, mcqs: true, numericals: false, notes: true }
+    }
+  };
+
+  // Get section availability based on subject
+  let sectionAvailability = { slo: true, mcqs: true, numericals: true, notes: true };
+  
+  if (isPhysics) {
+    sectionAvailability = physicsSectionsData[classNumber]?.[chapterNumber] || sectionAvailability;
+  } else if (isChemistry) {
+    sectionAvailability = chemistrySectionsData[classNumber]?.[chapterNumber] || sectionAvailability;
+  } else if (isBiology) {
+    sectionAvailability = biologySectionsData[classNumber]?.[chapterNumber] || sectionAvailability;
+  }
+
   const numExercises = mathsExerciseData[classNumber]?.[chapterNumber] || 3;
 
   // Maths exercises - ensure slugs match URL structure
@@ -61,13 +229,6 @@ export default function ChapterPage() {
       description: "Problems & solutions",
       gradient: "from-blue-500 to-cyan-500"
     })),
-    // {
-    //   name: "Review Exercises",
-    //   slug: "review",
-    //   icon: "🔍",
-    //   description: "Chapter review questions",
-    //   gradient: "from-indigo-500 to-purple-500"
-    // },
     {
       name: "Complete Notes",
       slug: "complete-notes",
@@ -77,39 +238,53 @@ export default function ChapterPage() {
     }
   ];
 
-  // Science subjects (Physics, Chemistry, Biology) sections
-  const scienceSections = [
+  // Science subjects (Physics, Chemistry, Biology) sections - all possible sections
+  const allScienceSections = [
     {
       name: "SLO Based Questions",
       slug: "slo-questions",
       icon: "📋",
       description: "Student Learning Outcomes based questions",
-      gradient: "from-blue-500 to-cyan-500"
+      gradient: "from-blue-500 to-cyan-500",
+      key: "slo"
     },
     {
       name: "MCQs",
       slug: "mcqs",
       icon: "✓",
       description: "Multiple choice questions",
-      gradient: "from-green-500 to-emerald-500"
+      gradient: "from-green-500 to-emerald-500",
+      key: "mcqs"
     },
     {
       name: "Numericals",
       slug: "numericals",
       icon: "🔢",
       description: "Numerical problems & solutions",
-      gradient: "from-orange-500 to-red-500"
+      gradient: "from-orange-500 to-red-500",
+      key: "numericals"
     },
     {
       name: "Complete Notes",
       slug: "complete-notes",
       icon: "📚",
       description: "Full chapter summary",
-      gradient: "from-purple-500 to-pink-500"
+      gradient: "from-purple-500 to-pink-500",
+      key: "notes"
     }
   ];
 
-  const sections = isMaths ? mathsExercises : scienceSections;
+  // Filter sections based on availability
+  const scienceSections = isMaths 
+    ? mathsExercises 
+    : allScienceSections.filter(section => sectionAvailability[section.key as keyof typeof sectionAvailability]);
+
+  const sections = scienceSections;
+  
+  // Count available sections for display
+  const availableSectionsCount = isMaths 
+    ? numExercises 
+    : Object.values(sectionAvailability).filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black p-8">
@@ -160,7 +335,7 @@ export default function ChapterPage() {
             <span>•</span>
             <span className="capitalize">{chapter.replace("-", " ")}</span>
             <span>•</span>
-            <span>{isMaths ? `${numExercises} Exercises` : '4 Sections'}</span>
+            <span>{isMaths ? `${numExercises} Exercises` : `${availableSectionsCount} Sections`}</span>
           </div>
 
           <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
