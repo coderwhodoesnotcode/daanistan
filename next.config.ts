@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         destination: '/awc-test-preparation',
         permanent: true, // 301 redirect
       },
+      {
+        source: '/:prefix*/first-year/:path*',
+        destination: 'https://daanistan.com',
+        permanent: true, // 301 redirect
+      },
     ];
   },
 };
