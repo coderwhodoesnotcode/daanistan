@@ -50,7 +50,7 @@ export default function SubjectPage() {
   // Chemistry chapter counts
   const chemistryChapterCounts: { [key: string]: number } = {
     "9": 8,
-    "10": 9,
+    "10": 8,
     "11": 10,
     "12": 9
   };
