@@ -123,14 +123,14 @@ export default function ChapterPage() {
     },
     "10": {
       "1": { slo: true, mcqs: true, numericals: false, notes: true },
-      "2": { slo: true, mcqs: true, numericals: true, notes: true },
-      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "2": { slo: true, mcqs: true, numericals: false, notes: true },
+      "3": { slo: true, mcqs: true, numericals: false, notes: true },
       "4": { slo: true, mcqs: true, numericals: false, notes: true },
-      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "5": { slo: true, mcqs: true, numericals: false, notes: true },
       "6": { slo: true, mcqs: true, numericals: false, notes: true },
-      "7": { slo: true, mcqs: true, numericals: true, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
       "8": { slo: true, mcqs: true, numericals: false, notes: true },
-      "9": { slo: true, mcqs: true, numericals: true, notes: true }
+      // "9": { slo: true, mcqs: true, numericals: true, notes: true }
     },
     "11": {
       "1": { slo: true, mcqs: true, numericals: false, notes: true },
