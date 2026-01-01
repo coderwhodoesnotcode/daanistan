@@ -51,15 +51,15 @@ export default function SubjectPage() {
   const chemistryChapterCounts: { [key: string]: number } = {
     "9": 8,
     "10": 8,
-    "11": 10,
-    "12": 9
+    "11": 12,
+    "12": 12
   };
 
   // Biology chapter counts
   const biologyChapterCounts: { [key: string]: number } = {
     "9": 9,
-    "10": 8,
-    "11": 11,
+    "10": 9,
+    "11": 13,
     "12": 10
   };
 

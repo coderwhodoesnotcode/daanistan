@@ -134,26 +134,31 @@ export default function ChapterPage() {
     },
     "11": {
       "1": { slo: true, mcqs: true, numericals: false, notes: true },
-      "2": { slo: true, mcqs: true, numericals: true, notes: true },
-      "3": { slo: true, mcqs: true, numericals: true, notes: true },
-      "4": { slo: true, mcqs: true, numericals: true, notes: true },
+      "2": { slo: true, mcqs: true, numericals: false, notes: true },
+      "3": { slo: true, mcqs: true, numericals: false, notes: true },
+      "4": { slo: true, mcqs: true, numericals: false, notes: true },
       "5": { slo: true, mcqs: true, numericals: false, notes: true },
-      "6": { slo: true, mcqs: true, numericals: true, notes: true },
+      "6": { slo: true, mcqs: true, numericals: false, notes: true },
       "7": { slo: true, mcqs: true, numericals: false, notes: true },
-      "8": { slo: true, mcqs: true, numericals: true, notes: true },
+      "8": { slo: true, mcqs: true, numericals: false, notes: true },
       "9": { slo: true, mcqs: true, numericals: false, notes: true },
-      "10": { slo: true, mcqs: true, numericals: true, notes: true }
+      "10": { slo: true, mcqs: true, numericals: false, notes: true },
+      "11": { slo: true, mcqs: true, numericals: false, notes: true },
+      "12": { slo: true, mcqs: true, numericals: false, notes: true },
     },
     "12": {
       "1": { slo: true, mcqs: true, numericals: false, notes: true },
-      "2": { slo: true, mcqs: true, numericals: true, notes: true },
-      "3": { slo: true, mcqs: true, numericals: true, notes: true },
+      "2": { slo: true, mcqs: true, numericals: false, notes: true },
+      "3": { slo: true, mcqs: true, numericals: false, notes: true },
       "4": { slo: true, mcqs: true, numericals: false, notes: true },
-      "5": { slo: true, mcqs: true, numericals: true, notes: true },
+      "5": { slo: true, mcqs: true, numericals: false, notes: true },
       "6": { slo: true, mcqs: true, numericals: false, notes: true },
-      "7": { slo: true, mcqs: true, numericals: true, notes: true },
+      "7": { slo: true, mcqs: true, numericals: false, notes: true },
       "8": { slo: true, mcqs: true, numericals: false, notes: true },
-      "9": { slo: true, mcqs: true, numericals: true, notes: true }
+      "9": { slo: true, mcqs: true, numericals: false, notes: true },
+      "10": { slo: true, mcqs: true, numericals: false, notes: true },
+      "11": { slo: true, mcqs: true, numericals: false, notes: true },
+      "12": { slo: true, mcqs: true, numericals: false, notes: true }
     }
   };
 
@@ -178,7 +183,8 @@ export default function ChapterPage() {
       "5": { slo: true, mcqs: true, numericals: false, notes: true },
       "6": { slo: true, mcqs: true, numericals: false, notes: true },
       "7": { slo: true, mcqs: true, numericals: false, notes: true },
-      "8": { slo: true, mcqs: true, numericals: false, notes: true }
+      "8": { slo: true, mcqs: true, numericals: false, notes: true },
+      "9": { slo: true, mcqs: true, numericals: false, notes: true }
     },
     "11": {
       "1": { slo: true, mcqs: true, numericals: false, notes: true },
@@ -191,7 +197,9 @@ export default function ChapterPage() {
       "8": { slo: true, mcqs: true, numericals: false, notes: true },
       "9": { slo: true, mcqs: true, numericals: false, notes: true },
       "10": { slo: true, mcqs: true, numericals: false, notes: true },
-      "11": { slo: true, mcqs: true, numericals: false, notes: true }
+      "11": { slo: true, mcqs: true, numericals: false, notes: true },
+      "12": { slo: true, mcqs: true, numericals: false, notes: true },
+      "13": { slo: true, mcqs: true, numericals: false, notes: true }
     },
     "12": {
       "1": { slo: true, mcqs: true, numericals: false, notes: true },
@@ -203,7 +211,10 @@ export default function ChapterPage() {
       "7": { slo: true, mcqs: true, numericals: false, notes: true },
       "8": { slo: true, mcqs: true, numericals: false, notes: true },
       "9": { slo: true, mcqs: true, numericals: false, notes: true },
-      "10": { slo: true, mcqs: true, numericals: false, notes: true }
+      "10": { slo: true, mcqs: true, numericals: false, notes: true },
+      "11": { slo: true, mcqs: true, numericals: false, notes: true },
+      "12": { slo: true, mcqs: true, numericals: false, notes: true },
+      "13": { slo: true, mcqs: true, numericals: false, notes: true }
     }
   };
 
