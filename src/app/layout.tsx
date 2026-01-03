@@ -44,9 +44,9 @@ export const metadata = {
   publisher: 'Daanistan',
 
   verification: {
-    google: 'hw_SUpIYqf9iSRoPQHRsrDy8jOtlMWar1OSxiItQK3o',
+    google: '1Vh69wUW8xkdayMxPJuMMdxdTmT1t_xs5hRkkOXpv3U',
   },
-
+  
   openGraph: {
     type: 'website',
     locale: 'en_PK',
