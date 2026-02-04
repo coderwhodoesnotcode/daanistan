@@ -11,8 +11,19 @@ interface ViewRecord {
   recorded_at: string;
 }
 
-export default function TopDramasTracker() {
-  const [dramas, setDramas] = useState<any[]>([]);
+interface Drama {
+  name: string;
+  id: string;
+  views: number;
+  thumbnail: string;
+  videoCount: number;
+  playlistCount: number;
+  viewGrowth: number;
+  previousViews: number;
+}
+
+const TopDramasTracker: React.FC = () => {
+  const [dramas, setDramas] = useState<Drama[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
@@ -33,7 +44,7 @@ export default function TopDramasTracker() {
     process.env.NEXT_PUBLIC_YOUTUBE_API_KEY_6,
     process.env.NEXT_PUBLIC_YOUTUBE_API_KEY_7,
     process.env.NEXT_PUBLIC_YOUTUBE_API_KEY_8
-  ].filter(Boolean);
+  ].filter(Boolean) as string[];
 
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -83,7 +94,7 @@ export default function TopDramasTracker() {
   };
 
   // Save current view counts to Supabase
-  const saveViewCounts = async (dramaData: any[]) => {
+  const saveViewCounts = async (dramaData: Drama[]) => {
     try {
       if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
         return;
@@ -376,7 +387,7 @@ export default function TopDramasTracker() {
       const dramaArray = Object.values(combinedDramas);
       
       // Save current view counts to history
-      await saveViewCounts(dramaArray);
+      await saveViewCounts(dramaArray as Drama[]);
       
       // Fetch historical data and calculate growth for selected period
       const historicalViews = await fetchHistoricalData(selectedPeriod);
@@ -403,7 +414,7 @@ export default function TopDramasTracker() {
         drama.id = `${drama.name.replace(/\s+/g, '-')}-${index}`;
       });
       
-      setDramas(sorted);
+      setDramas(sorted as Drama[]);
       setLastUpdate(new Date());
       setError(null);
       setLoading(false);
@@ -458,7 +469,7 @@ export default function TopDramasTracker() {
       const historicalViews = await fetchHistoricalData(selectedPeriod);
       
       // Update growth data for each drama
-      const updatedDramas = dramas.map((drama: any) => {
+      const updatedDramas = dramas.map((drama: Drama) => {
         const previousViews = historicalViews.get(drama.name);
         if (previousViews !== undefined && selectedPeriod !== 'alltime') {
           return {
@@ -477,11 +488,11 @@ export default function TopDramasTracker() {
       
       // Sort by growth for period, or by total views for all-time
       const sorted = selectedPeriod === 'alltime'
-        ? updatedDramas.sort((a: any, b: any) => b.views - a.views)
-        : updatedDramas.sort((a: any, b: any) => b.viewGrowth - a.viewGrowth);
+        ? updatedDramas.sort((a: Drama, b: Drama) => b.views - a.views)
+        : updatedDramas.sort((a: Drama, b: Drama) => b.viewGrowth - a.viewGrowth);
       
       // Re-assign ranks (IDs)
-      sorted.forEach((drama: any, index: number) => {
+      sorted.forEach((drama: Drama, index: number) => {
         drama.id = `${drama.name.replace(/\s+/g, '-')}-${index}`;
       });
       
@@ -505,7 +516,7 @@ export default function TopDramasTracker() {
     return () => clearInterval(interval);
   }, [loading]); // Only depend on loading state
 
-  const formatViews = (views: number) => {
+  const formatViews = (views: number): string => {
     if (views >= 1000000000) return `${(views / 1000000000).toFixed(2)}B`;
     if (views >= 1000000) return `${(views / 1000000).toFixed(2)}M`;
     if (views >= 1000) return `${(views / 1000).toFixed(1)}K`;
@@ -518,7 +529,7 @@ export default function TopDramasTracker() {
     fetchAllDramas();
   };
 
-  const getPeriodLabel = (period: TimePeriod) => {
+  const getPeriodLabel = (period: TimePeriod): string => {
     switch (period) {
       case '24h':
         return 'Last 24 Hours';
@@ -682,7 +693,7 @@ export default function TopDramasTracker() {
                     </td>
                   </tr>
                 ) : (
-                  dramas.map((drama: any, index: number) => (
+                  dramas.map((drama: Drama, index: number) => (
                   <tr 
                     key={drama.id}
                     className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
@@ -783,4 +794,6 @@ export default function TopDramasTracker() {
       </div>
     </div>
   );
-}
+};
+
+export default TopDramasTracker;
