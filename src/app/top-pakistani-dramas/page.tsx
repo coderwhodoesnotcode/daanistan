@@ -1,7 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Play, Eye, Loader2, Trophy, Database, Clock } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Eye, Loader2, Trophy, Database, Clock, TrendingUp } from 'lucide-react';
+
+type TimePeriod = '24h' | 'week' | 'month' | 'alltime';
+
+interface ViewRecord {
+  drama_name: string;
+  views: number;
+  recorded_at: string;
+}
 
 export default function TopDramasTracker() {
   const [dramas, setDramas] = useState<any[]>([]);
@@ -10,6 +18,10 @@ export default function TopDramasTracker() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [currentKeyIndex, setCurrentKeyIndex] = useState<number>(0);
   const [playlistsFromDB, setPlaylistsFromDB] = useState<any[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('alltime');
+
+  // Use ref to track if initial fetch is done
+  const initialFetchDone = useRef(false);
 
   // Get API keys and Supabase config from environment variables
   const API_KEYS = [
@@ -26,13 +38,16 @@ export default function TopDramasTracker() {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const getCurrentApiKey = () => API_KEYS[currentKeyIndex];
+  const getCurrentApiKey = () => {
+    if (currentKeyIndex >= API_KEYS.length) {
+      return null;
+    }
+    return API_KEYS[currentKeyIndex];
+  };
 
   // Fetch playlists from Supabase
   const fetchPlaylistsFromSupabase = async () => {
     try {
-      console.log('Fetching playlists from Supabase...');
-      
       if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
         throw new Error('Supabase configuration missing. Please check environment variables.');
       }
@@ -51,12 +66,10 @@ export default function TopDramasTracker() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Supabase response:', errorText);
         throw new Error(`Supabase error! status: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('Playlists from Supabase:', data);
       
       if (!Array.isArray(data) || data.length === 0) {
         throw new Error('No dramas found in Supabase table. Please add dramas to the "dramas" table.');
@@ -65,14 +78,108 @@ export default function TopDramasTracker() {
       setPlaylistsFromDB(data);
       return data;
     } catch (err: any) {
-      console.error('Error fetching from Supabase:', err);
       throw err;
     }
   };
 
-  const fetchPlaylistViews = async (playlistId: string, name: string) => {
+  // Save current view counts to Supabase
+  const saveViewCounts = async (dramaData: any[]) => {
     try {
-      const API_KEY = getCurrentApiKey();
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        return;
+      }
+      
+      const baseUrl = SUPABASE_URL.endsWith('/') ? SUPABASE_URL.slice(0, -1) : SUPABASE_URL;
+      
+      const records = dramaData.map(drama => ({
+        drama_name: drama.name,
+        views: drama.views,
+        recorded_at: new Date().toISOString()
+      }));
+
+      await fetch(`${baseUrl}/rest/v1/view_history`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(records)
+      });
+    } catch (err: any) {
+      // Silently fail - view history is optional
+    }
+  };
+
+  // Fetch historical data for ranking calculations
+  const fetchHistoricalData = async (period: TimePeriod): Promise<Map<string, number>> => {
+    try {
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY || period === 'alltime') {
+        return new Map();
+      }
+      
+      const baseUrl = SUPABASE_URL.endsWith('/') ? SUPABASE_URL.slice(0, -1) : SUPABASE_URL;
+      
+      // Calculate the timestamp for the period
+      const now = new Date();
+      let periodStart: Date;
+      
+      switch (period) {
+        case '24h':
+          periodStart = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          break;
+        case 'week':
+          periodStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          periodStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          return new Map();
+      }
+
+      const response = await fetch(
+        `${baseUrl}/rest/v1/view_history?select=*&recorded_at=gte.${periodStart.toISOString()}&order=recorded_at.asc`,
+        {
+          method: 'GET',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        return new Map();
+      }
+
+      const data: ViewRecord[] = await response.json();
+      
+      // Get the earliest record for each drama
+      const earliestViews = new Map<string, number>();
+      
+      data.forEach(record => {
+        if (!earliestViews.has(record.drama_name)) {
+          earliestViews.set(record.drama_name, record.views);
+        }
+      });
+
+      return earliestViews;
+    } catch (err: any) {
+      return new Map();
+    }
+  };
+
+  const fetchPlaylistViews = async (playlistId: string, name: string, keyIndex: number) => {
+    try {
+      const API_KEY = API_KEYS[keyIndex];
+      
+      if (!API_KEY) {
+        throw new Error('QUOTA_EXCEEDED');
+      }
+
       let allVideoIds: string[] = []; 
       let nextPageToken = '';
       let thumbnail = '';
@@ -94,10 +201,21 @@ export default function TopDramasTracker() {
         const data = await response.json();
         if (data.error) throw new Error(data.error.message);
         
+        // Try to get thumbnail from any available item
         if (!thumbnail && data.items && data.items.length > 0) {
-          thumbnail = data.items[0].snippet.thumbnails.high?.url || 
-                     data.items[0].snippet.thumbnails.medium?.url ||
-                     data.items[0].snippet.thumbnails.default?.url;
+          for (const item of data.items) {
+            if (item.snippet?.thumbnails) {
+              thumbnail = item.snippet.thumbnails.maxres?.url ||
+                         item.snippet.thumbnails.high?.url || 
+                         item.snippet.thumbnails.medium?.url ||
+                         item.snippet.thumbnails.default?.url ||
+                         item.snippet.thumbnails.standard?.url;
+              
+              if (thumbnail) {
+                break;
+              }
+            }
+          }
         }
         
         const videoIds = data.items.map((item: any) => item.contentDetails.videoId);
@@ -107,6 +225,28 @@ export default function TopDramasTracker() {
       } while (nextPageToken);
 
       let totalViews = 0;
+      
+      // If we still don't have a thumbnail, try to get it from the first video
+      if (!thumbnail && allVideoIds.length > 0) {
+        try {
+          const firstVideoUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${allVideoIds[0]}&key=${API_KEY}`;
+          const videoResponse = await fetch(firstVideoUrl);
+          
+          if (videoResponse.ok) {
+            const videoData = await videoResponse.json();
+            if (videoData.items && videoData.items.length > 0) {
+              const videoThumbnails = videoData.items[0].snippet?.thumbnails;
+              thumbnail = videoThumbnails?.maxres?.url ||
+                         videoThumbnails?.high?.url ||
+                         videoThumbnails?.medium?.url ||
+                         videoThumbnails?.default?.url ||
+                         videoThumbnails?.standard?.url;
+            }
+          }
+        } catch (thumbErr) {
+          // Silently fail - will use placeholder
+        }
+      }
       
       for (let i = 0; i < allVideoIds.length; i += 50) {
         const batch = allVideoIds.slice(i, i + 50);
@@ -139,34 +279,30 @@ export default function TopDramasTracker() {
         videoCount: allVideoIds.length
       };
     } catch (err: any) {
-      console.error(`Error fetching ${name}:`, err);
-      if (err.message === 'QUOTA_EXCEEDED') {
-        throw err;
-      }
-      return null;
+      throw err;
     }
   };
 
-  const fetchAllDramas = async () => {
+  const fetchAllDramas = async (playlists?: any[]) => {
     try {
       setLoading(true);
-      console.log(`Using API key ${currentKeyIndex + 1}/${API_KEYS.length}`);
       
-      let playlists = playlistsFromDB;
-      if (playlists.length === 0) {
-        playlists = await fetchPlaylistsFromSupabase();
+      // Use provided playlists or state
+      let playlistsToUse = playlists || playlistsFromDB;
+      
+      // If no playlists in state and none provided, fetch from Supabase
+      if (playlistsToUse.length === 0) {
+        playlistsToUse = await fetchPlaylistsFromSupabase();
       }
       
-      if (playlists.length === 0) {
+      if (playlistsToUse.length === 0) {
         throw new Error('No playlists found in Supabase database');
       }
-      
-      console.log('Playlists from DB:', playlists);
       
       // Flatten playlists - each drama can have multiple playlist IDs
       const allPlaylistRequests: Array<{dramaName: string; playlistId: string}> = [];
       
-      playlists.forEach((drama: any) => {
+      playlistsToUse.forEach((drama: any) => {
         // Check all three playlist columns (handles old 'playlist_id' or new 'playlist_id_1')
         const playlistId1 = drama.playlist_id_1 || drama.playlist_id; // Backward compatible
         
@@ -190,22 +326,28 @@ export default function TopDramasTracker() {
         }
       });
       
-      console.log('Total playlist requests:', allPlaylistRequests.length);
-      console.log('Playlist requests:', allPlaylistRequests);
-      
       if (allPlaylistRequests.length === 0) {
         throw new Error('No valid playlist IDs found in database');
       }
       
       const promises = allPlaylistRequests.map(item => 
-        fetchPlaylistViews(item.playlistId, item.dramaName)
+        fetchPlaylistViews(item.playlistId, item.dramaName, currentKeyIndex)
       );
       
-      const results = await Promise.all(promises);
-      console.log('Fetch results:', results);
+      const results = await Promise.allSettled(promises);
       
-      const validDramas = results.filter(d => d !== null);
-      console.log('Valid dramas count:', validDramas.length);
+      // Check if all failed due to quota
+      const allQuotaExceeded = results.every(result => 
+        result.status === 'rejected' && result.reason?.message === 'QUOTA_EXCEEDED'
+      );
+      
+      if (allQuotaExceeded) {
+        throw new Error('QUOTA_EXCEEDED');
+      }
+      
+      const validDramas = results
+        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled' && result.value !== null)
+        .map(result => result.value);
       
       if (validDramas.length === 0) {
         throw new Error('No dramas could be fetched. Check API key or quota limits.');
@@ -230,23 +372,52 @@ export default function TopDramasTracker() {
         }
       });
       
-      // Convert back to array and sort by views
-      const sorted = Object.values(combinedDramas).sort((a: any, b: any) => b.views - a.views);
+      // Convert to array
+      const dramaArray = Object.values(combinedDramas);
       
-      console.log('Final sorted dramas:', sorted);
+      // Save current view counts to history
+      await saveViewCounts(dramaArray);
+      
+      // Fetch historical data and calculate growth for selected period
+      const historicalViews = await fetchHistoricalData(selectedPeriod);
+      
+      // Add growth data to dramas
+      dramaArray.forEach((drama: any) => {
+        const previousViews = historicalViews.get(drama.name);
+        if (previousViews !== undefined && selectedPeriod !== 'alltime') {
+          drama.viewGrowth = drama.views - previousViews;
+          drama.previousViews = previousViews;
+        } else {
+          drama.viewGrowth = drama.views;
+          drama.previousViews = 0;
+        }
+      });
+      
+      // Sort by growth for period, or by total views for all-time
+      const sorted = selectedPeriod === 'alltime'
+        ? dramaArray.sort((a: any, b: any) => b.views - a.views)
+        : dramaArray.sort((a: any, b: any) => b.viewGrowth - a.viewGrowth);
+      
+      // Assign unique IDs to avoid React key warnings
+      sorted.forEach((drama: any, index: number) => {
+        drama.id = `${drama.name.replace(/\s+/g, '-')}-${index}`;
+      });
       
       setDramas(sorted);
       setLastUpdate(new Date());
       setError(null);
       setLoading(false);
     } catch (err: any) {
-      console.error('Error in fetchAllDramas:', err);
       
       if (err.message === 'QUOTA_EXCEEDED' && currentKeyIndex < API_KEYS.length - 1) {
-        console.log('Quota exceeded, switching to next API key...');
-        setCurrentKeyIndex(prev => prev + 1);
-        setError(`Switched to backup API key ${currentKeyIndex + 2}`);
-        setTimeout(() => fetchAllDramas(), 2000);
+        const nextKeyIndex = currentKeyIndex + 1;
+        setCurrentKeyIndex(nextKeyIndex);
+        setError(`Quota exceeded. Switching to API key ${nextKeyIndex + 1}...`);
+        
+        // Retry with next key after a short delay
+        setTimeout(() => {
+          fetchAllDramas(playlists || playlistsFromDB);
+        }, 2000);
       } else if (err.message === 'QUOTA_EXCEEDED') {
         setError('All API keys have exceeded quota. Please try again tomorrow.');
         setLoading(false);
@@ -257,27 +428,107 @@ export default function TopDramasTracker() {
     }
   };
 
-  // Initial fetch
+  // Initial fetch - only run once
   useEffect(() => {
-    fetchAllDramas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!initialFetchDone.current) {
+      initialFetchDone.current = true;
+      
+      const initialize = async () => {
+        try {
+          const playlists = await fetchPlaylistsFromSupabase();
+          await fetchAllDramas(playlists);
+        } catch (err: any) {
+          setError(err.message);
+          setLoading(false);
+        }
+      };
+      
+      initialize();
+    }
+  }, []); // Empty dependency array - only run once
 
-  // Fetch real data every 15 minutes
+  // Re-sort dramas when period changes (without re-fetching from YouTube)
   useEffect(() => {
+    const resortDramas = async () => {
+      if (!initialFetchDone.current || dramas.length === 0) {
+        return;
+      }
+
+      // Fetch historical data for the new period
+      const historicalViews = await fetchHistoricalData(selectedPeriod);
+      
+      // Update growth data for each drama
+      const updatedDramas = dramas.map((drama: any) => {
+        const previousViews = historicalViews.get(drama.name);
+        if (previousViews !== undefined && selectedPeriod !== 'alltime') {
+          return {
+            ...drama,
+            viewGrowth: drama.views - previousViews,
+            previousViews: previousViews
+          };
+        } else {
+          return {
+            ...drama,
+            viewGrowth: drama.views,
+            previousViews: 0
+          };
+        }
+      });
+      
+      // Sort by growth for period, or by total views for all-time
+      const sorted = selectedPeriod === 'alltime'
+        ? updatedDramas.sort((a: any, b: any) => b.views - a.views)
+        : updatedDramas.sort((a: any, b: any) => b.viewGrowth - a.viewGrowth);
+      
+      // Re-assign ranks (IDs)
+      sorted.forEach((drama: any, index: number) => {
+        drama.id = `${drama.name.replace(/\s+/g, '-')}-${index}`;
+      });
+      
+      setDramas([...sorted]);
+    };
+
+    resortDramas();
+  }, [selectedPeriod]);
+
+  // Auto-refresh every 24 hours
+  useEffect(() => {
+    // Only start interval after initial fetch is complete
+    if (!initialFetchDone.current || loading) {
+      return;
+    }
+
     const interval = setInterval(() => {
       fetchAllDramas();
-    }, 900000); // 15 minutes
+    }, 86400000); // 24 hours (24 * 60 * 60 * 1000)
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentKeyIndex]);
+  }, [loading]); // Only depend on loading state
 
   const formatViews = (views: number) => {
     if (views >= 1000000000) return `${(views / 1000000000).toFixed(2)}B`;
     if (views >= 1000000) return `${(views / 1000000).toFixed(2)}M`;
     if (views >= 1000) return `${(views / 1000).toFixed(1)}K`;
     return views.toLocaleString();
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    setCurrentKeyIndex(0); // Reset to first API key
+    fetchAllDramas();
+  };
+
+  const getPeriodLabel = (period: TimePeriod) => {
+    switch (period) {
+      case '24h':
+        return 'Last 24 Hours';
+      case 'week':
+        return 'Last Week';
+      case 'month':
+        return 'Last Month';
+      case 'alltime':
+        return 'All Time';
+    }
   };
 
   if (loading && dramas.length === 0) {
@@ -303,7 +554,7 @@ export default function TopDramasTracker() {
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Error</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={fetchAllDramas}
+            onClick={handleRetry}
             className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
           >
             Retry
@@ -323,13 +574,58 @@ export default function TopDramasTracker() {
               Top Pakistani Dramas
             </h1>
           </div>
-          <p className="text-gray-600 text-lg mb-3">
+          <p className="text-gray-600 text-lg mb-4">
             Most viewed drama playlists on YouTube
           </p>
+
+          {/* Time Period Selector */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+            <button
+              onClick={() => setSelectedPeriod('24h')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedPeriod === '24h'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              24 Hours
+            </button>
+            <button
+              onClick={() => setSelectedPeriod('week')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedPeriod === 'week'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              Week
+            </button>
+            <button
+              onClick={() => setSelectedPeriod('month')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedPeriod === 'month'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              Month
+            </button>
+            <button
+              onClick={() => setSelectedPeriod('alltime')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedPeriod === 'alltime'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              All Time
+            </button>
+          </div>
+          
           <div className="flex flex-wrap items-center justify-center gap-2">
             <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              Live • Updates every 15 minutes
+              Live • Updates every 24 hours
             </div>
             <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
               <Database className="w-3 h-3" />
@@ -337,21 +633,36 @@ export default function TopDramasTracker() {
             </div>
             {lastUpdate && (
               <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium">
+                <Clock className="w-3 h-3" />
                 Last update: {lastUpdate.toLocaleTimeString()}
               </div>
             )}
           </div>
+          {error && (
+            <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-sm font-medium">
+              ⚠️ {error}
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-green-600 to-red-600 text-white px-6 py-3">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              {getPeriodLabel(selectedPeriod)} Rankings
+            </h2>
+          </div>
+          
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gradient-to-r from-green-600 to-red-600 text-white">
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Rank</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Thumbnail</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Drama Name</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold">Total Views</th>
+                <tr className="bg-gray-100 border-b border-gray-200">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Rank</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Thumbnail</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Drama Name</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
+                    {selectedPeriod === 'alltime' ? 'Total Views' : 'Views Gained'}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -362,7 +673,7 @@ export default function TopDramasTracker() {
                         <Database className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                         <p className="text-lg font-medium mb-2">No data available</p>
                         <button
-                          onClick={fetchAllDramas}
+                          onClick={handleRetry}
                           className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm"
                         >
                           Try Again
@@ -433,11 +744,22 @@ export default function TopDramasTracker() {
                         <Eye className="w-5 h-5 text-green-600" />
                         <div>
                           <p className="text-2xl font-bold text-gray-800">
-                            {formatViews(drama.views)}
+                            {selectedPeriod === 'alltime' 
+                              ? formatViews(drama.views)
+                              : formatViews(drama.viewGrowth)
+                            }
                           </p>
                           <p className="text-xs text-gray-500">
-                            {drama.views.toLocaleString()}
+                            {selectedPeriod === 'alltime' 
+                              ? drama.views.toLocaleString()
+                              : `+${drama.viewGrowth.toLocaleString()}`
+                            }
                           </p>
+                          {selectedPeriod !== 'alltime' && (
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              Total: {formatViews(drama.views)}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -452,10 +774,10 @@ export default function TopDramasTracker() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            Data refreshes automatically every 15 minutes
+            Data refreshes automatically every 24 hours
           </p>
           <p className="text-xs text-gray-400 mt-2">
-            Powered by Supabase • {playlistsFromDB.length} dramas tracked • Ranked by views • 8 API keys
+            Powered by Supabase • {playlistsFromDB.length} dramas tracked • Ranked by {selectedPeriod === 'alltime' ? 'total views' : 'view growth'} • {API_KEYS.length} API keys
           </p>
         </div>
       </div>

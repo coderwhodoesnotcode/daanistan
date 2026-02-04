@@ -60,7 +60,7 @@ export default function SubjectPage() {
     "9": 9,
     "10": 9,
     "11": 13,
-    "12": 10
+    "12": 13
   };
 
   // Get chapter count based on subject and class
