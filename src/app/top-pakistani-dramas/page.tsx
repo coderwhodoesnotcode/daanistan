@@ -785,7 +785,7 @@ const TopDramasTracker: React.FC = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            Data refreshes automatically every 24 hours
+            Data refreshes automatically every 24 hourz
           </p>
           <p className="text-xs text-gray-400 mt-2">
             Powered by Supabase • {playlistsFromDB.length} dramas tracked • Ranked by {selectedPeriod === 'alltime' ? 'total views' : 'view growth'} • {API_KEYS.length} API keys
