@@ -30,6 +30,8 @@ const TopDramasTracker: React.FC = () => {
   const [currentKeyIndex, setCurrentKeyIndex] = useState<number>(0);
   const [playlistsFromDB, setPlaylistsFromDB] = useState<any[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('alltime');
+  const [loadingProgress, setLoadingProgress] = useState<number>(0);
+  const [showProgress, setShowProgress] = useState<boolean>(true);
 
   // Use ref to track if initial fetch is done
   const initialFetchDone = useRef(false);
@@ -55,6 +57,33 @@ const TopDramasTracker: React.FC = () => {
     }
     return API_KEYS[currentKeyIndex];
   };
+
+  // Progress bar animation effect
+  useEffect(() => {
+    if (loading) {
+      // Simulate progress from 0 to 95% while loading
+      const interval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev >= 95) {
+            return 95;
+          }
+          // Slow down as we get closer to 95%
+          const increment = prev < 50 ? 3 : prev < 80 ? 2 : 1;
+          return Math.min(prev + increment, 95);
+        });
+      }, 150);
+
+      return () => clearInterval(interval);
+    } else if (!loading && loadingProgress > 0 && loadingProgress < 100) {
+      // Complete the progress bar when loading is done
+      setLoadingProgress(100);
+      
+      // Hide progress bar after a short delay
+      setTimeout(() => {
+        setShowProgress(false);
+      }, 500);
+    }
+  }, [loading, loadingProgress]);
 
   // Fetch playlists from Supabase
   const fetchPlaylistsFromSupabase = async () => {
@@ -296,6 +325,13 @@ const TopDramasTracker: React.FC = () => {
 
   const fetchAllDramas = async (playlists?: any[]) => {
     try {
+      // Reset progress states
+      setShowProgress(true);
+      setLoadingProgress(0);
+      
+      // Small delay to ensure state updates are rendered
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       setLoading(true);
       
       // Use provided playlists or state
@@ -544,15 +580,60 @@ const TopDramasTracker: React.FC = () => {
 
   if (loading && dramas.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-red-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-16 h-16 text-green-600 animate-spin mx-auto mb-4" />
-          <p className="text-xl text-gray-700">Loading Top Pakistani Dramas...</p>
-          <p className="text-sm text-gray-500 mt-2 flex items-center justify-center gap-2">
-            <Database className="w-4 h-4" />
-            Fetching from Supabase database
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-red-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-red-500 rounded-full mb-4 shadow-lg">
+              <Database className="w-10 h-10 text-white animate-pulse" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading Top Pakistani Dramas</h2>
+            <p className="text-sm text-gray-500">Fetching data from Supabase database...</p>
+          </div>
+
+          {/* Progress Bar Container */}
+          <div className="bg-white rounded-xl shadow-2xl p-6">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">Loading Progress</span>
+              <span className="text-sm font-bold text-green-600">{loadingProgress}%</span>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+              <div
+                className="h-full bg-gradient-to-r from-green-500 via-green-600 to-red-500 rounded-full transition-all duration-300 ease-out relative overflow-hidden"
+                style={{ width: `${loadingProgress}%` }}
+              >
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-shimmer"></div>
+              </div>
+            </div>
+
+            {/* Loading stages text */}
+            <div className="mt-4 text-center">
+              <p className="text-xs text-gray-500">
+                {loadingProgress < 30 && "Connecting to database..."}
+                {loadingProgress >= 30 && loadingProgress < 60 && "Fetching drama playlists..."}
+                {loadingProgress >= 60 && loadingProgress < 90 && "Calculating view counts..."}
+                {loadingProgress >= 90 && "Almost ready..."}
+              </p>
+            </div>
+          </div>
         </div>
+
+        {/* Add shimmer animation styles */}
+        <style jsx>{`
+          @keyframes shimmer {
+            0% {
+              transform: translateX(-100%);
+            }
+            100% {
+              transform: translateX(100%);
+            }
+          }
+          .animate-shimmer {
+            animation: shimmer 2s infinite;
+          }
+        `}</style>
       </div>
     );
   }
@@ -577,6 +658,19 @@ const TopDramasTracker: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-red-50 p-4 md:p-8">
+      {/* Sliding Progress Bar - only shown when loading */}
+      {showProgress && (
+        <div className="fixed top-0 left-0 right-0 z-50 transition-opacity duration-500"
+             style={{ opacity: loadingProgress === 100 ? 0 : 1 }}>
+          <div className="w-full bg-gray-200 h-1">
+            <div
+              className="h-full bg-gradient-to-r from-green-500 via-green-600 to-red-500 transition-all duration-300 ease-out"
+              style={{ width: `${loadingProgress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-3">
