@@ -36,7 +36,7 @@ export default function AcademyManagement() {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [viewMode, setViewMode] = useState('current'); // 'current', 'all'
+  const [viewMode, setViewMode] = useState('current');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -59,12 +59,12 @@ export default function AcademyManagement() {
   const [showEditStudent, setShowEditStudent] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  // Fetch all data on component mount and when month/year changes
   useEffect(() => {
     fetchStudents();
     fetchPayments();
     fetchExpenses();
     fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth, selectedYear]);
 
   const fetchStudents = async () => {
@@ -195,7 +195,7 @@ export default function AcademyManagement() {
       const response = await fetch('/api/payments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData), // formData now includes month and year
+        body: JSON.stringify(formData),
       });
       
       if (response.ok) {
@@ -275,7 +275,6 @@ export default function AcademyManagement() {
     }).format(amount || 0);
   };
 
-  // Filter students based on search and active status for different views
   const getFilteredStudents = (statusFilter = null) => {
     let filtered = students.filter(s => 
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -291,16 +290,18 @@ export default function AcademyManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
+          <div className="flex flex-col gap-4 mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Academy Management</h1>
-              <p className="text-gray-600 mt-1">Since April 1, 2025</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Academy Management</h1>
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">Since April 1, 2025</p>
             </div>
-            <div className="flex gap-3">
+            
+            {/* Mobile responsive controls */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               <select 
                 value={viewMode}
                 onChange={(e) => {
@@ -310,17 +311,17 @@ export default function AcademyManagement() {
                     fetchExpenses();
                   }, 0);
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm sm:text-base"
               >
                 <option value="current">Current Month</option>
                 <option value="all">All Time</option>
               </select>
               {viewMode === 'current' && (
-                <>
+                <div className="flex gap-3 w-full sm:w-auto">
                   <select 
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm sm:text-base"
                   >
                     {MONTHS.map((month, idx) => (
                       <option key={idx} value={idx + 1}>{month}</option>
@@ -329,13 +330,13 @@ export default function AcademyManagement() {
                   <select 
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm sm:text-base"
                   >
                     <option value={2025}>2025</option>
                     <option value={2026}>2026</option>
                     <option value={2027}>2027</option>
                   </select>
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -375,8 +376,8 @@ export default function AcademyManagement() {
 
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-lg mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
+          <div className="border-b border-gray-200 overflow-x-auto">
+            <nav className="flex -mb-px min-w-max">
               <TabButton 
                 active={activeTab === 'overview'} 
                 onClick={() => setActiveTab('overview')}
@@ -404,7 +405,7 @@ export default function AcademyManagement() {
             </nav>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {activeTab === 'overview' && (
               <OverviewTab 
                 stats={stats} 
@@ -508,7 +509,6 @@ export default function AcademyManagement() {
   );
 }
 
-// Stat Card Component
 function StatCard({ icon, title, value, subtitle, color }) {
   const colorClasses = {
     blue: 'bg-blue-500',
@@ -523,22 +523,21 @@ function StatCard({ icon, title, value, subtitle, color }) {
         <div className={`${colorClasses[color]} text-white p-2 rounded-lg`}>
           {icon}
         </div>
-        <div className="flex-1">
-          <p className="text-sm text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-800">{value}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm text-gray-600 truncate">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-800 truncate">{value}</p>
         </div>
       </div>
-      <p className="text-xs text-gray-500">{subtitle}</p>
+      <p className="text-xs text-gray-500 truncate">{subtitle}</p>
     </div>
   );
 }
 
-// Tab Button Component
 function TabButton({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+      className={`px-4 sm:px-6 py-3 font-medium text-xs sm:text-sm border-b-2 transition-colors whitespace-nowrap ${
         active
           ? 'border-blue-500 text-blue-600'
           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -549,16 +548,13 @@ function TabButton({ active, onClick, children }) {
   );
 }
 
-// Overview Tab Component
 function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth, selectedYear }) {
   const activeStudents = students.filter(s => s.status === 'active');
   
-  // Get payments for current month
   const currentMonthPayments = payments.filter(
     p => p.month === selectedMonth && p.year === selectedYear
   );
   
-  // Categorize students by payment status
   const paidStudentIds = new Set(
     currentMonthPayments
       .filter(p => p.status === 'paid')
@@ -586,26 +582,26 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-800 mb-4">
+      <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
         Monthly Overview - {MONTHS[selectedMonth - 1]} {selectedYear}
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
-          <h3 className="font-semibold text-green-800 mb-4">Revenue Summary</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 sm:p-6 border border-green-200">
+          <h3 className="font-semibold text-green-800 mb-4 text-sm sm:text-base">Revenue Summary</h3>
           <div className="space-y-3">
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm sm:text-base">
               <span className="text-gray-700">Expected Revenue:</span>
               <span className="font-semibold text-gray-900">
                 {formatCurrency(stats.expectedRevenue)}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm sm:text-base">
               <span className="text-gray-700">Actual Collection:</span>
               <span className="font-semibold text-green-600">
                 {formatCurrency(stats.monthlyCollection)}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm sm:text-base">
               <span className="text-gray-700">Pending:</span>
               <span className="font-semibold text-orange-600">
                 {formatCurrency(stats.expectedRevenue - stats.monthlyCollection)}
@@ -614,22 +610,22 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
-          <h3 className="font-semibold text-blue-800 mb-4">Profit Summary</h3>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 sm:p-6 border border-blue-200">
+          <h3 className="font-semibold text-blue-800 mb-4 text-sm sm:text-base">Profit Summary</h3>
           <div className="space-y-3">
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm sm:text-base">
               <span className="text-gray-700">Total Collection:</span>
               <span className="font-semibold text-gray-900">
                 {formatCurrency(stats.monthlyCollection)}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm sm:text-base">
               <span className="text-gray-700">Total Expenses:</span>
               <span className="font-semibold text-red-600">
                 {formatCurrency(stats.monthlyExpenses)}
               </span>
             </div>
-            <div className="flex justify-between border-t pt-2">
+            <div className="flex justify-between border-t pt-2 text-sm sm:text-base">
               <span className="text-gray-700 font-semibold">Net Profit:</span>
               <span className={`font-bold ${stats.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {formatCurrency(stats.netProfit)}
@@ -640,16 +636,16 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
       </div>
 
       {/* Payment Status Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <h4 className="font-semibold text-green-800">Fully Paid</h4>
+            <h4 className="font-semibold text-green-800 text-sm sm:text-base">Fully Paid</h4>
           </div>
-          <p className="text-2xl font-bold text-green-600">
+          <p className="text-xl sm:text-2xl font-bold text-green-600">
             {paidStudentIds.size}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-gray-600">
             {formatCurrency(
               currentMonthPayments
                 .filter(p => p.status === 'paid')
@@ -661,12 +657,12 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <h4 className="font-semibold text-yellow-800">Partial Payment</h4>
+            <h4 className="font-semibold text-yellow-800 text-sm sm:text-base">Partial Payment</h4>
           </div>
-          <p className="text-2xl font-bold text-yellow-600">
+          <p className="text-xl sm:text-2xl font-bold text-yellow-600">
             {partialPaymentStudents.length}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-gray-600">
             {formatCurrency(
               partialPaymentStudents.reduce((sum, s) => sum + s.amountPaid, 0)
             )} paid
@@ -676,12 +672,12 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <h4 className="font-semibold text-red-800">Not Paid</h4>
+            <h4 className="font-semibold text-red-800 text-sm sm:text-base">Not Paid</h4>
           </div>
-          <p className="text-2xl font-bold text-red-600">
+          <p className="text-xl sm:text-2xl font-bold text-red-600">
             {unpaidStudents.length}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-gray-600">
             {formatCurrency(
               unpaidStudents.reduce((sum, s) => sum + s.monthly_fee, 0)
             )} pending
@@ -691,9 +687,9 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
 
       {/* Partial Payment Students */}
       {partialPaymentStudents.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 sm:p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <h3 className="font-semibold text-yellow-800 text-lg">
+            <h3 className="font-semibold text-yellow-800 text-base sm:text-lg">
               ⚠️ Partial Payment Students ({partialPaymentStudents.length})
             </h3>
           </div>
@@ -701,29 +697,29 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
             {partialPaymentStudents.map(student => (
               <div key={student.id} className="bg-white p-4 rounded-lg border border-yellow-300 shadow-sm">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">{student.name}</p>
-                    <p className="text-sm text-gray-600">{student.course}</p>
+                  <div className="flex-1 min-w-0 mr-2">
+                    <p className="font-semibold text-gray-900 truncate">{student.name}</p>
+                    <p className="text-sm text-gray-600 truncate">{student.course}</p>
                   </div>
-                  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">
+                  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded whitespace-nowrap">
                     Partial
                   </span>
                 </div>
                 
                 <div className="space-y-2 mt-3">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-gray-600">Monthly Fee:</span>
                     <span className="font-medium text-gray-900">
                       {formatCurrency(student.monthly_fee)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-gray-600">Paid:</span>
                     <span className="font-medium text-green-600">
                       {formatCurrency(student.amountPaid)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm pt-2 border-t border-yellow-200">
+                  <div className="flex justify-between text-xs sm:text-sm pt-2 border-t border-yellow-200">
                     <span className="font-semibold text-gray-700">Remaining:</span>
                     <span className="font-bold text-orange-600">
                       {formatCurrency(student.remaining)}
@@ -732,7 +728,7 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
                 </div>
                 
                 {student.notes && (
-                  <p className="text-xs text-gray-500 mt-2 italic">
+                  <p className="text-xs text-gray-500 mt-2 italic line-clamp-2">
                     Note: {student.notes}
                   </p>
                 )}
@@ -744,7 +740,7 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
             ))}
           </div>
           <div className="mt-4 p-3 bg-yellow-100 rounded-lg">
-            <p className="text-sm text-yellow-800">
+            <p className="text-xs sm:text-sm text-yellow-800">
               <strong>Total Partial Payments:</strong> {formatCurrency(
                 partialPaymentStudents.reduce((sum, s) => sum + s.amountPaid, 0)
               )} collected, {formatCurrency(
@@ -757,27 +753,27 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
 
       {/* Unpaid Students */}
       {unpaidStudents.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
-            <h3 className="font-semibold text-red-800 text-lg">
+            <h3 className="font-semibold text-red-800 text-base sm:text-lg">
               ❌ Unpaid Students ({unpaidStudents.length})
             </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {unpaidStudents.map(student => (
               <div key={student.id} className="flex justify-between items-center bg-white p-3 rounded border border-red-300">
-                <div>
-                  <p className="font-medium text-gray-900">{student.name}</p>
-                  <p className="text-sm text-gray-600">{student.course}</p>
+                <div className="flex-1 min-w-0 mr-2">
+                  <p className="font-medium text-gray-900 truncate">{student.name}</p>
+                  <p className="text-sm text-gray-600 truncate">{student.course}</p>
                 </div>
-                <span className="font-semibold text-red-600">
+                <span className="font-semibold text-red-600 whitespace-nowrap">
                   {formatCurrency(student.monthly_fee)}
                 </span>
               </div>
             ))}
           </div>
           <div className="mt-4 p-3 bg-red-100 rounded-lg">
-            <p className="text-sm text-red-800">
+            <p className="text-xs sm:text-sm text-red-800">
               <strong>Total Pending:</strong> {formatCurrency(
                 unpaidStudents.reduce((sum, s) => sum + s.monthly_fee, 0)
               )}
@@ -789,11 +785,11 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
       {/* All Paid Message */}
       {unpaidStudents.length === 0 && partialPaymentStudents.length === 0 && activeStudents.length > 0 && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-          <div className="text-5xl mb-3">🎉</div>
-          <h3 className="font-bold text-green-800 text-xl mb-2">
+          <div className="text-4xl sm:text-5xl mb-3">🎉</div>
+          <h3 className="font-bold text-green-800 text-lg sm:text-xl mb-2">
             All Students Have Paid!
           </h3>
-          <p className="text-green-700">
+          <p className="text-green-700 text-sm sm:text-base">
             All {paidStudentIds.size} active students have completed their payment for {MONTHS[selectedMonth - 1]} {selectedYear}.
           </p>
         </div>
@@ -802,7 +798,6 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
   );
 }
 
-// Students Tab Component
 function StudentsTab({ students, searchTerm, setSearchTerm, onAddStudent, onEditStudent, onDeleteStudent, onMarkPayment, formatCurrency }) {
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -817,34 +812,34 @@ function StudentsTab({ students, searchTerm, setSearchTerm, onAddStudent, onEdit
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Students</h2>
-        <div className="flex gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-4">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800">Students</h2>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-none">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
               placeholder="Search students..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
           <button 
             onClick={onAddStudent}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors whitespace-nowrap text-sm sm:text-base"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             Add Student
           </button>
         </div>
       </div>
 
       {/* Status Filter */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => setStatusFilter('all')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-xs sm:text-sm ${
             statusFilter === 'all'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -854,7 +849,7 @@ function StudentsTab({ students, searchTerm, setSearchTerm, onAddStudent, onEdit
         </button>
         <button
           onClick={() => setStatusFilter('active')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-xs sm:text-sm ${
             statusFilter === 'active'
               ? 'bg-green-500 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -864,7 +859,7 @@ function StudentsTab({ students, searchTerm, setSearchTerm, onAddStudent, onEdit
         </button>
         <button
           onClick={() => setStatusFilter('inactive')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-xs sm:text-sm ${
             statusFilter === 'inactive'
               ? 'bg-orange-500 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -874,7 +869,7 @@ function StudentsTab({ students, searchTerm, setSearchTerm, onAddStudent, onEdit
         </button>
         <button
           onClick={() => setStatusFilter('graduated')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-xs sm:text-sm ${
             statusFilter === 'graduated'
               ? 'bg-purple-500 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -884,167 +879,171 @@ function StudentsTab({ students, searchTerm, setSearchTerm, onAddStudent, onEdit
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Fee</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Join Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredStudents.length === 0 ? (
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <table className="min-w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  No students found. Add your first student to get started!
-                </td>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Fee</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Join Date</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
-            ) : (
-              filteredStudents.map((student) => (
-                <tr key={student.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="font-medium text-gray-900">{student.name}</div>
-                      <div className="text-sm text-gray-500">{student.phone || 'N/A'}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.course}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatCurrency(student.monthly_fee)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(student.join_date).toLocaleDateString('en-IN')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      student.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : student.status === 'graduated'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {student.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {student.status === 'active' && (
-                      <button 
-                        onClick={() => onMarkPayment(student)}
-                        className="text-green-600 hover:text-green-900 mr-3"
-                        title="Mark Payment"
-                      >
-                        <CheckCircle className="w-5 h-5" />
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => onEditStudent(student)}
-                      className="text-blue-600 hover:text-blue-900 mr-3" 
-                      title="Edit"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </button>
-                    <button 
-                      onClick={() => onDeleteStudent(student.id)}
-                      className="text-red-600 hover:text-red-900" 
-                      title="Delete"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredStudents.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 sm:px-6 py-8 text-center text-gray-500 text-sm">
+                    No students found. Add your first student to get started!
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filteredStudents.map((student) => (
+                  <tr key={student.id} className="hover:bg-gray-50">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="font-medium text-gray-900 text-sm">{student.name}</div>
+                        <div className="text-xs text-gray-500">{student.phone || 'N/A'}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">{student.course}</td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                      {formatCurrency(student.monthly_fee)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden md:table-cell">
+                      {new Date(student.join_date).toLocaleDateString('en-IN')}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        student.status === 'active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : student.status === 'graduated'
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {student.status}
+                      </span>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-2">
+                        {student.status === 'active' && (
+                          <button 
+                            onClick={() => onMarkPayment(student)}
+                            className="text-green-600 hover:text-green-900"
+                            title="Mark Payment"
+                          >
+                            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => onEditStudent(student)}
+                          className="text-blue-600 hover:text-blue-900" 
+                          title="Edit"
+                        >
+                          <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
+                        <button 
+                          onClick={() => onDeleteStudent(student.id)}
+                          className="text-red-600 hover:text-red-900" 
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
 
-// Payments Tab Component
 function PaymentsTab({ payments, students, selectedMonth, selectedYear, formatCurrency, viewMode }) {
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-4">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800">
           Payment Records {viewMode === 'current' && `- ${MONTHS[selectedMonth - 1]} ${selectedYear}`}
         </h2>
-        <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
-          <Download className="w-5 h-5" />
+        <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm sm:text-base">
+          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
           Export
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-              {viewMode === 'all' && (
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month/Year</th>
-              )}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {payments.length === 0 ? (
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <table className="min-w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <td colSpan={viewMode === 'all' ? 6 : 5} className="px-6 py-8 text-center text-gray-500">
-                  No payment records found
-                </td>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                {viewMode === 'all' && (
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month/Year</th>
+                )}
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Payment Date</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Notes</th>
               </tr>
-            ) : (
-              payments.map((payment) => {
-                const student = students.find(s => s.id === payment.student_id);
-                return (
-                  <tr key={payment.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {student?.name || 'Unknown Student'}
-                    </td>
-                    {viewMode === 'all' && (
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {MONTHS[payment.month - 1]} {payment.year}
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {payments.length === 0 ? (
+                <tr>
+                  <td colSpan={viewMode === 'all' ? 6 : 5} className="px-4 sm:px-6 py-8 text-center text-gray-500 text-sm">
+                    No payment records found
+                  </td>
+                </tr>
+              ) : (
+                payments.map((payment) => {
+                  const student = students.find(s => s.id === payment.student_id);
+                  return (
+                    <tr key={payment.id} className="hover:bg-gray-50">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900">
+                        {student?.name || 'Unknown Student'}
                       </td>
-                    )}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatCurrency(payment.amount_paid)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(payment.payment_date).toLocaleDateString('en-IN')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        payment.status === 'paid' 
-                          ? 'bg-green-100 text-green-800' 
-                          : payment.status === 'partial'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {payment.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {payment.notes || '-'}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                      {viewMode === 'all' && (
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                          {MONTHS[payment.month - 1]} {payment.year}
+                        </td>
+                      )}
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                        {formatCurrency(payment.amount_paid)}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden md:table-cell">
+                        {new Date(payment.payment_date).toLocaleDateString('en-IN')}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          payment.status === 'paid' 
+                            ? 'bg-green-100 text-green-800' 
+                            : payment.status === 'partial'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {payment.status}
+                        </span>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-500 hidden lg:table-cell">
+                        {payment.notes || '-'}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
 
-// Expenses Tab Component
 function ExpensesTab({ expenses, selectedMonth, selectedYear, onAddExpense, onDeleteExpense, formatCurrency, viewMode }) {
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
 
@@ -1058,96 +1057,97 @@ function ExpensesTab({ expenses, selectedMonth, selectedYear, onAddExpense, onDe
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-4">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800">
           Expenses {viewMode === 'current' && `- ${MONTHS[selectedMonth - 1]} ${selectedYear}`}
         </h2>
         <button 
           onClick={onAddExpense}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
           Add Expense
         </button>
       </div>
 
       {/* Category Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {Object.entries(expensesByCategory).map(([category, amount]) => (
-          <div key={category} className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-            <p className="text-sm text-gray-600 capitalize">{category}</p>
-            <p className="text-xl font-bold text-orange-600">
+          <div key={category} className="bg-orange-50 rounded-lg p-3 sm:p-4 border border-orange-200">
+            <p className="text-xs sm:text-sm text-gray-600 capitalize truncate">{category}</p>
+            <p className="text-lg sm:text-xl font-bold text-orange-600 truncate">
               {formatCurrency(amount)}
             </p>
           </div>
         ))}
-        <div className="bg-gray-100 rounded-lg p-4 border border-gray-300">
-          <p className="text-sm text-gray-600">Total Expenses</p>
-          <p className="text-xl font-bold text-gray-800">
+        <div className="bg-gray-100 rounded-lg p-3 sm:p-4 border border-gray-300">
+          <p className="text-xs sm:text-sm text-gray-600">Total Expenses</p>
+          <p className="text-lg sm:text-xl font-bold text-gray-800 truncate">
             {formatCurrency(totalExpenses)}
           </p>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {expenses.length === 0 ? (
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <table className="min-w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  No expenses recorded
-                </td>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Date</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Notes</th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
-            ) : (
-              expenses.map((expense) => (
-                <tr key={expense.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {expense.title}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 capitalize">
-                      {expense.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatCurrency(expense.amount)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(expense.expense_date).toLocaleDateString('en-IN')}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {expense.notes || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button 
-                      onClick={() => onDeleteExpense(expense.id)}
-                      className="text-red-600 hover:text-red-900" 
-                      title="Delete"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {expenses.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 sm:px-6 py-8 text-center text-gray-500 text-sm">
+                    No expenses recorded
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                expenses.map((expense) => (
+                  <tr key={expense.id} className="hover:bg-gray-50">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900">
+                      {expense.title}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 capitalize">
+                        {expense.category}
+                      </span>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                      {formatCurrency(expense.amount)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden md:table-cell">
+                      {new Date(expense.expense_date).toLocaleDateString('en-IN')}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-500 hidden lg:table-cell">
+                      {expense.notes || '-'}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button 
+                        onClick={() => onDeleteExpense(expense.id)}
+                        className="text-red-600 hover:text-red-900" 
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
 
-// Add Student Modal
 function AddStudentModal({ onClose, onSubmit, loading }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -1168,12 +1168,12 @@ function AddStudentModal({ onClose, onSubmit, loading }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl p-4 sm:p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Add New Student</h3>
+          <h3 className="text-lg sm:text-xl font-bold">Add New Student</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -1185,7 +1185,7 @@ function AddStudentModal({ onClose, onSubmit, loading }) {
               type="text" 
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               required
             />
           </div>
@@ -1197,7 +1197,7 @@ function AddStudentModal({ onClose, onSubmit, loading }) {
               type="tel" 
               value={formData.phone}
               onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
           </div>
           <div>
@@ -1208,7 +1208,7 @@ function AddStudentModal({ onClose, onSubmit, loading }) {
               type="email" 
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
           </div>
           <div>
@@ -1219,7 +1219,7 @@ function AddStudentModal({ onClose, onSubmit, loading }) {
               type="text" 
               value={formData.course}
               onChange={(e) => setFormData({...formData, course: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               required
             />
           </div>
@@ -1231,7 +1231,7 @@ function AddStudentModal({ onClose, onSubmit, loading }) {
               type="number" 
               value={formData.monthly_fee}
               onChange={(e) => setFormData({...formData, monthly_fee: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               required
             />
           </div>
@@ -1243,21 +1243,21 @@ function AddStudentModal({ onClose, onSubmit, loading }) {
               type="date" 
               value={formData.join_date}
               onChange={(e) => setFormData({...formData, join_date: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
           </div>
           <div className="flex gap-3 pt-4">
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
               disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 text-sm sm:text-base"
               disabled={loading}
             >
               {loading ? 'Adding...' : 'Add Student'}
@@ -1269,7 +1269,6 @@ function AddStudentModal({ onClose, onSubmit, loading }) {
   );
 }
 
-// Edit Student Modal
 function EditStudentModal({ student, onClose, onSubmit, loading }) {
   const [formData, setFormData] = useState({
     name: student.name,
@@ -1286,12 +1285,12 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl p-4 sm:p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Edit Student</h3>
+          <h3 className="text-lg sm:text-xl font-bold">Edit Student</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -1303,7 +1302,7 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
               type="text" 
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               required
             />
           </div>
@@ -1315,7 +1314,7 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
               type="tel" 
               value={formData.phone}
               onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
           </div>
           <div>
@@ -1326,7 +1325,7 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
               type="email" 
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
           </div>
           <div>
@@ -1337,7 +1336,7 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
               type="text" 
               value={formData.course}
               onChange={(e) => setFormData({...formData, course: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               required
             />
           </div>
@@ -1349,7 +1348,7 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
               type="number" 
               value={formData.monthly_fee}
               onChange={(e) => setFormData({...formData, monthly_fee: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               required
             />
           </div>
@@ -1360,7 +1359,7 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
             <select
               value={formData.status}
               onChange={(e) => setFormData({...formData, status: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               required
             >
               <option value="active">Active</option>
@@ -1375,14 +1374,14 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
               disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 text-sm sm:text-base"
               disabled={loading}
             >
               {loading ? 'Saving...' : 'Save Changes'}
@@ -1394,7 +1393,6 @@ function EditStudentModal({ student, onClose, onSubmit, loading }) {
   );
 }
 
-// Add Expense Modal
 function AddExpenseModal({ onClose, onSubmit, loading }) {
   const [formData, setFormData] = useState({
     title: '',
@@ -1414,12 +1412,12 @@ function AddExpenseModal({ onClose, onSubmit, loading }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl p-4 sm:p-6 max-w-md w-full mx-4">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Add New Expense</h3>
+          <h3 className="text-lg sm:text-xl font-bold">Add New Expense</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -1431,7 +1429,7 @@ function AddExpenseModal({ onClose, onSubmit, loading }) {
               type="text" 
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm sm:text-base"
               required
             />
           </div>
@@ -1442,7 +1440,7 @@ function AddExpenseModal({ onClose, onSubmit, loading }) {
             <select 
               value={formData.category}
               onChange={(e) => setFormData({...formData, category: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm sm:text-base"
               required
             >
               <option value="">Select Category</option>
@@ -1459,7 +1457,7 @@ function AddExpenseModal({ onClose, onSubmit, loading }) {
               type="number" 
               value={formData.amount}
               onChange={(e) => setFormData({...formData, amount: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm sm:text-base"
               required
             />
           </div>
@@ -1471,7 +1469,7 @@ function AddExpenseModal({ onClose, onSubmit, loading }) {
               type="date" 
               value={formData.expense_date}
               onChange={(e) => setFormData({...formData, expense_date: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm sm:text-base"
             />
           </div>
           <div>
@@ -1482,21 +1480,21 @@ function AddExpenseModal({ onClose, onSubmit, loading }) {
               value={formData.notes}
               onChange={(e) => setFormData({...formData, notes: e.target.value})}
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm sm:text-base"
             />
           </div>
           <div className="flex gap-3">
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
               disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit"
-              className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 text-sm sm:text-base"
               disabled={loading}
             >
               {loading ? 'Adding...' : 'Add Expense'}
@@ -1508,7 +1506,6 @@ function AddExpenseModal({ onClose, onSubmit, loading }) {
   );
 }
 
-// Payment Modal
 function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose, onSubmit, loading }) {
   const [formData, setFormData] = useState({
     student_id: student.id,
@@ -1522,9 +1519,9 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
   const [existingPayment, setExistingPayment] = useState(null);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
 
-  // Fetch existing payment when month/year changes
   useEffect(() => {
     fetchExistingPayment();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.month, formData.year]);
 
   const fetchExistingPayment = async () => {
@@ -1554,7 +1551,6 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Calculate new total
     const newAmount = parseInt(formData.amount_paid);
     const newTotal = totalPaid + newAmount;
     
@@ -1564,7 +1560,6 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
       return;
     }
     
-    // If existing payment, add to it
     const finalAmount = existingPayment ? newTotal : newAmount;
     
     onSubmit({
@@ -1582,27 +1577,25 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl p-4 sm:p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Mark Payment</h3>
+          <h3 className="text-lg sm:text-xl font-bold">Mark Payment</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
         
-        {/* Student Info */}
         <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-          <p className="text-sm text-gray-600">Student</p>
-          <p className="font-semibold">{student.name}</p>
-          <p className="text-sm text-gray-600 mt-2">Course</p>
-          <p className="font-semibold">{student.course}</p>
-          <p className="text-sm text-gray-600 mt-2">Monthly Fee</p>
-          <p className="font-semibold">{formatCurrency(student.monthly_fee)}</p>
+          <p className="text-xs sm:text-sm text-gray-600">Student</p>
+          <p className="font-semibold text-sm sm:text-base">{student.name}</p>
+          <p className="text-xs sm:text-sm text-gray-600 mt-2">Course</p>
+          <p className="font-semibold text-sm sm:text-base">{student.course}</p>
+          <p className="text-xs sm:text-sm text-gray-600 mt-2">Monthly Fee</p>
+          <p className="font-semibold text-sm sm:text-base">{formatCurrency(student.monthly_fee)}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Month/Year Selection */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1611,7 +1604,7 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
               <select 
                 value={formData.month}
                 onChange={(e) => setFormData({...formData, month: parseInt(e.target.value)})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
                 required
               >
                 {MONTHS.map((monthName, idx) => (
@@ -1626,7 +1619,7 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
               <select 
                 value={formData.year}
                 onChange={(e) => setFormData({...formData, year: parseInt(e.target.value)})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
                 required
               >
                 <option value={2025}>2025</option>
@@ -1636,9 +1629,8 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
             </div>
           </div>
 
-          {/* Existing Payment Status */}
           {isLoadingPayment ? (
-            <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
+            <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500 text-sm">
               Loading payment info...
             </div>
           ) : existingPayment ? (
@@ -1656,7 +1648,7 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
                     Paid on: {new Date(existingPayment.payment_date).toLocaleDateString('en-IN')}
                   </p>
                 </div>
-                <span className={`text-lg font-bold ${
+                <span className={`text-base sm:text-lg font-bold ${
                   isFullyPaid ? 'text-green-600' : 'text-yellow-600'
                 }`}>
                   {formatCurrency(totalPaid)}
@@ -1688,7 +1680,6 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
             </div>
           )}
 
-          {/* Amount Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {existingPayment && !isFullyPaid ? 'Additional Amount to Pay *' : 'Amount Paid *'}
@@ -1697,13 +1688,13 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
               type="number" 
               value={formData.amount_paid}
               onChange={(e) => setFormData({...formData, amount_paid: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
               required
               min="0"
               disabled={isFullyPaid}
             />
             {existingPayment && !isFullyPaid && (
-              <div className="mt-2 p-2 bg-blue-50 rounded text-sm">
+              <div className="mt-2 p-2 bg-blue-50 rounded text-xs sm:text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Already Paid:</span>
                   <span className="font-medium">{formatCurrency(totalPaid)}</span>
@@ -1728,7 +1719,6 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
             </p>
           </div>
 
-          {/* Quick Amount Buttons */}
           {existingPayment && !isFullyPaid && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1738,29 +1728,28 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
                 <button
                   type="button"
                   onClick={() => setFormData({...formData, amount_paid: remaining})}
-                  className="px-3 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg text-sm font-medium"
+                  className="px-2 sm:px-3 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg text-xs font-medium"
                 >
-                  Pay Remaining<br/>{formatCurrency(remaining)}
+                  Remaining<br/>{formatCurrency(remaining)}
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData({...formData, amount_paid: Math.floor(remaining / 2)})}
-                  className="px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium"
+                  className="px-2 sm:px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-medium"
                 >
-                  Pay Half<br/>{formatCurrency(Math.floor(remaining / 2))}
+                  Half<br/>{formatCurrency(Math.floor(remaining / 2))}
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData({...formData, amount_paid: 1000})}
-                  className="px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-sm font-medium"
+                  className="px-2 sm:px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs font-medium"
                 >
-                  Pay ₹1000
+                  ₹1000
                 </button>
               </div>
             </div>
           )}
 
-          {/* Payment Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Payment Date
@@ -1769,12 +1758,11 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
               type="date" 
               value={formData.payment_date}
               onChange={(e) => setFormData({...formData, payment_date: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
               disabled={isFullyPaid}
             />
           </div>
 
-          {/* Notes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Notes (Optional)
@@ -1783,13 +1771,12 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
               value={formData.notes}
               onChange={(e) => setFormData({...formData, notes: e.target.value})}
               rows={2}
-              placeholder="e.g., Paid via UPI, Cash, Partial payment 1 of 2, etc."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              placeholder="e.g., Paid via UPI, Cash, etc."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
               disabled={isFullyPaid}
             />
           </div>
 
-          {/* Info Box */}
           {!isFullyPaid && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <p className="text-xs text-blue-800">
@@ -1798,19 +1785,18 @@ function PaymentModal({ student, month: defaultMonth, year: defaultYear, onClose
             </div>
           )}
 
-          {/* Buttons */}
           <div className="flex gap-3">
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
               disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit"
-              className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 text-sm sm:text-base"
               disabled={loading || isFullyPaid}
             >
               {loading ? 'Saving...' : existingPayment ? 'Add Payment' : 'Mark as Paid'}
