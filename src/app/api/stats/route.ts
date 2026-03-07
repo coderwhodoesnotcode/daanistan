@@ -20,7 +20,13 @@ export async function GET(request: Request) {
 
     if (studentsError) throw studentsError;
 
-    const activeStudents = students.filter(s => s.status === 'active');
+    const activeStudents = students.filter(s => {
+  if (s.status !== 'active') return false;
+  const joinDate = new Date(s.join_date);
+  const joinYear = joinDate.getFullYear();
+  const joinMonth = joinDate.getMonth() + 1;
+  return joinYear < year || (joinYear === year && joinMonth <= month);
+});
 
     // Fetch payments for the month
     const { data: payments, error: paymentsError } = await supabase

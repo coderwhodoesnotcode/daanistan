@@ -303,3 +303,22 @@ export default function Home() {
     </div>
   );
 }
+
+// In your page.tsx or wherever TopDramasTracker is rendered
+// import { createClient } from '@supabase/supabase-js';
+// import TopDramasTracker from './top-pakistani-dramas/page';
+
+// const supabase = createClient(
+//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// );
+
+// export default async function Page() {
+//   // Fetch dramas server-side with no caching
+//   const { data: dramas } = await supabase
+//     .from('dramas')
+//     .select('*')
+//     .order('total_views', { ascending: false });
+
+//   return <TopDramasTracker initialDramas={dramas || []} />;
+// }

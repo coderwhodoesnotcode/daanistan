@@ -549,7 +549,14 @@ function TabButton({ active, onClick, children }) {
 }
 
 function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth, selectedYear }) {
-  const activeStudents = students.filter(s => s.status === 'active');
+  const activeStudents = students.filter(s => {
+  if (s.status !== 'active') return false;
+  // Only include students who had already joined by the selected month
+  const joinDate = new Date(s.join_date);
+  const joinYear = joinDate.getFullYear();
+  const joinMonth = joinDate.getMonth() + 1; // 1-based
+  return joinYear < selectedYear || (joinYear === selectedYear && joinMonth <= selectedMonth);
+});
   
   const currentMonthPayments = payments.filter(
     p => p.month === selectedMonth && p.year === selectedYear
