@@ -414,6 +414,10 @@ export default function AcademyManagement() {
                 payments={payments}
                 selectedMonth={selectedMonth}
                 selectedYear={selectedYear}
+                onMarkPayment={(student) => {
+                  setSelectedStudent(student);
+                  setShowPaymentModal(true);
+                }}
               />
             )}
             {activeTab === 'students' && (
@@ -548,15 +552,14 @@ function TabButton({ active, onClick, children }) {
   );
 }
 
-function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth, selectedYear }) {
+function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth, selectedYear, onMarkPayment }) {
   const activeStudents = students.filter(s => {
-  if (s.status !== 'active') return false;
-  // Only include students who had already joined by the selected month
-  const joinDate = new Date(s.join_date);
-  const joinYear = joinDate.getFullYear();
-  const joinMonth = joinDate.getMonth() + 1; // 1-based
-  return joinYear < selectedYear || (joinYear === selectedYear && joinMonth <= selectedMonth);
-});
+    if (s.status !== 'active') return false;
+    const joinDate = new Date(s.join_date);
+    const joinYear = joinDate.getFullYear();
+    const joinMonth = joinDate.getMonth() + 1;
+    return joinYear < selectedYear || (joinYear === selectedYear && joinMonth <= selectedMonth);
+  });
   
   const currentMonthPayments = payments.filter(
     p => p.month === selectedMonth && p.year === selectedYear
@@ -743,6 +746,14 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
                 <p className="text-xs text-gray-500 mt-2">
                   Last payment: {new Date(student.paymentDate).toLocaleDateString('en-IN')}
                 </p>
+
+                <button
+                  onClick={() => onMarkPayment(student)}
+                  className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold rounded-lg transition-colors"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Add Remaining Payment
+                </button>
               </div>
             ))}
           </div>
@@ -773,9 +784,19 @@ function OverviewTab({ stats, formatCurrency, students, payments, selectedMonth,
                   <p className="font-medium text-gray-900 truncate">{student.name}</p>
                   <p className="text-sm text-gray-600 truncate">{student.course}</p>
                 </div>
-                <span className="font-semibold text-red-600 whitespace-nowrap">
-                  {formatCurrency(student.monthly_fee)}
-                </span>
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  <span className="font-semibold text-red-600 whitespace-nowrap text-sm">
+                    {formatCurrency(student.monthly_fee)}
+                  </span>
+                  <button
+                    onClick={() => onMarkPayment(student)}
+                    className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Mark Paid</span>
+                    <span className="sm:hidden">Pay</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
